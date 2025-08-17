@@ -2,7 +2,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { calculateBField } from "$lib/physics/biotSavart";
-
+import { activeSimulation, type SimulationType } from "$lib/stores/simulationStore";
 
 // Define an interface for the state of the scene.
 interface SceneState {
@@ -46,12 +46,36 @@ export function createScene(canvas: HTMLCanvasElement) {
 
     // The Objects (Geometry + Material = Mesh)
     // To create a visible object, need a 'geometry' (the shape) and a 'material' (color or texture).
+    // --- Model 1: Infinite cable ---
     // 1. The infinite cable
     const wireGeometry = new THREE.CylinderGeometry(0.05, 0.05, 20, 16); // radius, radius, high, segments
     const wireMaterial = new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.5, roughness: 0.5 }) // *
     const wire = new THREE.Mesh(wireGeometry, wireMaterial);; // The 'Mesh' is the final object 
     scene.add(wire); 
     
+    // --- Model 2: Circular loop ---
+    const loopGeometry = new THREE.TorusGeometry(2, 0.05, 16, 64); // toro radius, tube radius 
+    const loop = new THREE.Mesh(loopGeometry, wireMaterial); 
+    loop.rotation.x = Math.PI / 2; // Rotate to be in XZ plane 
+    scene.add(loop); 
+
+    // --- Model 3: Solenoid ---
+    const solenoidPoints = [];
+    const solenoidRadius = 1; 
+    const solenoidHeigth = 4; 
+    const turns = 20; 
+    for (let i = 0; i <= turns *2; i += 0.1) {
+        const y = (i/ (turns * 2) -0.5) * solenoidHeigth;
+        const x = Math.cos(i * Math.PI) * solenoidRadius;
+        const z = Math.sin(i * Math.PI) * solenoidRadius;
+        solenoidPoints.push(new THREE.Vector3(x, y, z));
+    } 
+    const solenoidCurve = new THREE.CatmullRomCurve3(solenoidPoints);
+    const solenoidGeometry = new THREE.TubeGeometry(solenoidCurve, 256, 0.05, 16, false);
+    const solenoid = new THREE.Mesh(solenoidGeometry, wireMaterial); 
+    scene.add(solenoid);
+
+
     // 2. The measuring point (a little sphere)
     const pointGeometry = new THREE.SphereGeometry(0.15, 16, 16); //radius, segments, segments 
     const pointMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
@@ -74,6 +98,16 @@ export function createScene(canvas: HTMLCanvasElement) {
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8); 
     directionalLight.position.set(5, 5, 5);
     scene.add(directionalLight);
+
+    // Suscirbe to the store to update the visibility 
+    const unsubscribe = activeSimulation.subscribe((simulation) => {
+        wire.visible = simulation === "infinite_wire";
+        loop.visible = simulation === "circular_loop";
+        solenoid.visible = simulation === "solenoid";
+
+        // 
+        measurementPoint.visible = simulation === "infinite_wire";
+    })
 
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
@@ -124,18 +158,21 @@ export function createScene(canvas: HTMLCanvasElement) {
         requestAnimationFrame(animate); // Call 'animate' in the next frame 
         controls.update(); // Update the controlls in each photograme for damping works.
 
-        // At each frame, we calculate the magnetic field at the current position of the sphere.
-        const bField = calculateBField(sceneState.current, measurementPoint.position);
-
-        // The actual magnetic field values (Teslas) are very small.
-        // We scale them by a large factor so the arrow is visible.
-        const visualizationScale = 5e5;
-        const bFieldMagnitude = bField.length() * visualizationScale;
-        const bFieldDirection = bField.normalize();
-
-        //Update the arrow's direction and length.
-        bFieldVector.setLength(bFieldMagnitude);
-        bFieldVector.setDirection(bFieldDirection);
+        // The physics only updates if the object is visible 
+        if (measurementPoint.visible) {
+            // At each frame, we calculate the magnetic field at the current position of the sphere.
+            const bField = calculateBField(sceneState.current, measurementPoint.position);
+    
+            // The actual magnetic field values (Teslas) are very small.
+            // We scale them by a large factor so the arrow is visible.
+            const visualizationScale = 5e5;
+            const bFieldMagnitude = bField.length() * visualizationScale;
+            const bFieldDirection = bField.normalize();
+    
+            //Update the arrow's direction and length.
+            bFieldVector.setLength(bFieldMagnitude);
+            bFieldVector.setDirection(bFieldDirection);
+        }
         
         
         // Render the scene 
@@ -145,7 +182,7 @@ export function createScene(canvas: HTMLCanvasElement) {
     animate();
 
     // Handle the redimension of the window 
-    window.addEventListener("resize", () => {
+    const handleResize = () => {
         // Update the camera dimensions
         camera.aspect = window.innerWidth / window.innerHeight; 
         camera.updateProjectionMatrix();
@@ -153,7 +190,8 @@ export function createScene(canvas: HTMLCanvasElement) {
         // Update the render dimensions
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    });
+    };
+    window.addEventListener("resize", handleResize);
 
     return {
         update: (newState: Partial<SceneState>) => {
@@ -163,6 +201,7 @@ export function createScene(canvas: HTMLCanvasElement) {
 
         // Return a function to clean the event listeners 
         destroy: () => {
+            unsubscribe(); 
             window.removeEventListener("pointerdown", onPointerDown);
             window.removeEventListener("pointermove", onPointerMove);
             window.removeEventListener("pointerup", onPointerUp);

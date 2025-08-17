@@ -2,6 +2,7 @@
  <script lang="ts">
     import { createEventDispatcher } from "svelte";
     import Slider from "./shared/Slider.svelte";
+    import ScenarioSelector from "./ScenarioSelector.svelte";
 
     let current = 5;
 
@@ -26,6 +27,9 @@
                 unit="A"
                 on:change={handleCurrentChange}
         />
+
+        <ScenarioSelector />
+
 </div>
 
 <style>
