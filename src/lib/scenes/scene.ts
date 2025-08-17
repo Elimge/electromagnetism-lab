@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { calculateBField } from "$lib/physics/biotSavart";
 
+
 // Define an interface for the state of the scene.
 interface SceneState {
     current: number;
@@ -74,6 +75,50 @@ export function createScene(canvas: HTMLCanvasElement) {
     directionalLight.position.set(5, 5, 5);
     scene.add(directionalLight);
 
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+    let draggedObject: THREE.Object3D | null = null; 
+    const draggableObjects = [measurementPoint];
+
+    // A invisible plane at y=0 on which it will drag the sphere.
+    const dragPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+
+    function onPointerDown(event: PointerEvent) {
+        pointer.x = (event.clientX / window.innerWidth) * 2 - 1; 
+        pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(pointer, camera);
+        const intersects = raycaster.intersectObjects(draggableObjects);
+        
+        if (intersects.length > 0) {
+            draggedObject = intersects[0].object;
+            controls.enabled = false; // Deactive the camera to don't move everything at the same time 
+        }
+    }
+    
+    function onPointerMove(event: PointerEvent) {
+        if (draggedObject) {
+            pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+            pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            raycaster.setFromCamera(pointer, camera);
+
+            const intersectionPoint = new THREE.Vector3();
+            raycaster.ray.intersectPlane(dragPlane, intersectionPoint);
+
+            // Update the object position that has been dragged, but the original high still the same (y).
+            draggedObject.position.set(intersectionPoint.x, draggedObject.position.y, intersectionPoint.z); 
+        }
+    }
+
+    function onPointerUp() {
+        draggedObject = null; 
+        controls.enabled = true; // Reactivate the camera 
+    }
+
+    // Register the event listeners 
+    window.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
+
     // Animation Loop 
     const animate = () => {
         requestAnimationFrame(animate); // Call 'animate' in the next frame 
@@ -114,6 +159,14 @@ export function createScene(canvas: HTMLCanvasElement) {
         update: (newState: Partial<SceneState>) => {
             // Object.assign allows us to merge the new state with the existing one.
             Object.assign(sceneState, newState);
+        },
+
+        // Return a function to clean the event listeners 
+        destroy: () => {
+            window.removeEventListener("pointerdown", onPointerDown);
+            window.removeEventListener("pointermove", onPointerMove);
+            window.removeEventListener("pointerup", onPointerUp);
+            window.removeEventListener("resize", () => {}); // Remove the resize listener 
         }
     };
 }

@@ -11,15 +11,22 @@
     // Save the function 'update' to return the scene.
     let sceneUpdater: (newState: { current: number }) => void;
 
+    // Cleaning function 
+    let sceneDestroyer: () => void;
+
     onMount(() => {
         if (canvas) {
-            // Capture the function 'update' to create the scene 
-            const { update } = createScene(canvas);
-            sceneUpdater = update
+            // Capture the function 'update' and 'destroyer' to create the scene 
+            const { update, destroy } = createScene(canvas);
+            sceneUpdater = update;
+            sceneDestroyer = destroy; 
 
         } 
         return () => {
             // Cleanup logic if the component is destroyed
+            if (sceneDestroyer) {
+                sceneDestroyer(); 
+            }
         }
     });
 
