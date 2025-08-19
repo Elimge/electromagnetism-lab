@@ -1,7 +1,7 @@
 // src/lib/scenes/scene.ts
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { calculateBField } from "$lib/physics/biotSavart";
+import { calculateWireBField, calculateLoopBField, calculateSolenoidBField } from "$lib/physics/biotSavart";
 import { activeSimulation, type SimulationType } from "$lib/stores/simulationStore";
 
 // Define an interface for the state of the scene.
@@ -42,7 +42,11 @@ export function createScene(canvas: HTMLCanvasElement) {
     const sceneState: SceneState = {
         current: 5 // Amperes
     }
-    
+
+    // Save the dimensions of the models 
+    const LOOP_RADIUS = 2; 
+    const SOLENOID_HEIGHT = 4;
+    const SOLENOID_TURNS = 20; 
 
     // The Objects (Geometry + Material = Mesh)
     // To create a visible object, need a 'geometry' (the shape) and a 'material' (color or texture).
@@ -50,24 +54,21 @@ export function createScene(canvas: HTMLCanvasElement) {
     // 1. The infinite cable
     const wireGeometry = new THREE.CylinderGeometry(0.05, 0.05, 20, 16); // radius, radius, high, segments
     const wireMaterial = new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.5, roughness: 0.5 }) // *
-    const wire = new THREE.Mesh(wireGeometry, wireMaterial);; // The 'Mesh' is the final object 
+    const wire = new THREE.Mesh(wireGeometry, wireMaterial); // The 'Mesh' is the final object 
     scene.add(wire); 
     
     // --- Model 2: Circular loop ---
-    const loopGeometry = new THREE.TorusGeometry(2, 0.05, 16, 64); // toro radius, tube radius 
+    const loopGeometry = new THREE.TorusGeometry(LOOP_RADIUS, 0.05, 16, 64); // toro radius, tube radius 
     const loop = new THREE.Mesh(loopGeometry, wireMaterial); 
     loop.rotation.x = Math.PI / 2; // Rotate to be in XZ plane 
     scene.add(loop); 
 
     // --- Model 3: Solenoid ---
-    const solenoidPoints = [];
-    const solenoidRadius = 1; 
-    const solenoidHeigth = 4; 
-    const turns = 20; 
-    for (let i = 0; i <= turns *2; i += 0.1) {
-        const y = (i/ (turns * 2) -0.5) * solenoidHeigth;
-        const x = Math.cos(i * Math.PI) * solenoidRadius;
-        const z = Math.sin(i * Math.PI) * solenoidRadius;
+    const solenoidPoints = []; 
+    for (let i = 0; i <= SOLENOID_TURNS *2; i += 0.1) {
+        const y = (i/ (SOLENOID_TURNS * 2) -0.5) * SOLENOID_HEIGHT;
+        const x = Math.cos(i * Math.PI) * 1;
+        const z = Math.sin(i * Math.PI) * 1;
         solenoidPoints.push(new THREE.Vector3(x, y, z));
     } 
     const solenoidCurve = new THREE.CatmullRomCurve3(solenoidPoints);
@@ -99,15 +100,23 @@ export function createScene(canvas: HTMLCanvasElement) {
     directionalLight.position.set(5, 5, 5);
     scene.add(directionalLight);
 
-    // Suscirbe to the store to update the visibility 
+    // Suscribe to the store to update the visibility 
+    let currentSimulation: string; 
     const unsubscribe = activeSimulation.subscribe((simulation) => {
+        currentSimulation = simulation; // Save the actual status 
         wire.visible = simulation === "infinite_wire";
         loop.visible = simulation === "circular_loop";
         solenoid.visible = simulation === "solenoid";
-
         // 
-        measurementPoint.visible = simulation === "infinite_wire";
-    })
+        measurementPoint.visible = true;
+
+        // Re ubicate the sphere at initial point 
+        if (simulation === "infinite_wire") {
+            measurementPoint.position.set(2, 0, 0); 
+        } else {
+            measurementPoint.position.set(0, 0, 0);
+        }
+    });
 
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
@@ -115,7 +124,8 @@ export function createScene(canvas: HTMLCanvasElement) {
     const draggableObjects = [measurementPoint];
 
     // A invisible plane at y=0 on which it will drag the sphere.
-    const dragPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    const dragPlaneHorizontal = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+    const dragPlaneVertical = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
     function onPointerDown(event: PointerEvent) {
         pointer.x = (event.clientX / window.innerWidth) * 2 - 1; 
@@ -135,11 +145,15 @@ export function createScene(canvas: HTMLCanvasElement) {
             pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
             raycaster.setFromCamera(pointer, camera);
 
-            const intersectionPoint = new THREE.Vector3();
-            raycaster.ray.intersectPlane(dragPlane, intersectionPoint);
-
-            // Update the object position that has been dragged, but the original high still the same (y).
-            draggedObject.position.set(intersectionPoint.x, draggedObject.position.y, intersectionPoint.z); 
+            const intersectionPoint = new THREE.Vector3(); 
+            
+            if (currentSimulation === "infinite_wire") {
+                raycaster.ray.intersectPlane(dragPlaneHorizontal, intersectionPoint); 
+                draggedObject.position.set(intersectionPoint.x, 0, intersectionPoint.z); 
+            } else {
+                raycaster.ray.intersectPlane(dragPlaneVertical, intersectionPoint); 
+                draggedObject.position.set(0, intersectionPoint.y, 0); 
+            }
         }
     }
 
@@ -158,22 +172,41 @@ export function createScene(canvas: HTMLCanvasElement) {
         requestAnimationFrame(animate); // Call 'animate' in the next frame 
         controls.update(); // Update the controlls in each photograme for damping works.
 
-        // The physics only updates if the object is visible 
-        if (measurementPoint.visible) {
-            // At each frame, we calculate the magnetic field at the current position of the sphere.
-            const bField = calculateBField(sceneState.current, measurementPoint.position);
-    
-            // The actual magnetic field values (Teslas) are very small.
-            // We scale them by a large factor so the arrow is visible.
-            const visualizationScale = 5e5;
-            const bFieldMagnitude = bField.length() * visualizationScale;
-            const bFieldDirection = bField.normalize();
-    
-            //Update the arrow's direction and length.
-            bFieldVector.setLength(bFieldMagnitude);
-            bFieldVector.setDirection(bFieldDirection);
+        let bField = new THREE.Vector3(0, 0, 0); 
+
+        switch (currentSimulation) {
+            case "infinite_wire" :
+                bField = calculateWireBField(sceneState.current, measurementPoint.position);
+                break; 
+            case "circular_loop":
+                bField = calculateLoopBField(sceneState.current, LOOP_RADIUS, measurementPoint.position);
+                break;
+            case "solenoid":
+                bField = calculateSolenoidBField(sceneState.current, SOLENOID_TURNS, SOLENOID_HEIGHT, measurementPoint.position); 
+                break; 
         }
+
+        // The physics only updates if the object is visible 
+        // if (measurementPoint.visible) {
+        //     // At each frame, we calculate the magnetic field at the current position of the sphere.
+        //     const bField = calculateWireBField(sceneState.current, measurementPoint.position);
+    
+        //     // The actual magnetic field values (Teslas) are very small.
+        //     // We scale them by a large factor so the arrow is visible.
+        //     const visualizationScale = 5e5;
+        //     const bFieldMagnitude = bField.length() * visualizationScale;
+        //     const bFieldDirection = bField.normalize();
+    
+        //     //Update the arrow's direction and length.
+        //     bFieldVector.setLength(bFieldMagnitude);
+        //     bFieldVector.setDirection(bFieldDirection);
+        // }
         
+        const visualizationScale = 5e5; 
+        const bFieldMagnitude = bField.length() * visualizationScale;
+        const bFieldDirection = bField.normalize();
+        bFieldVector.setDirection(bFieldDirection);
+        bFieldVector.setLength(bFieldMagnitude, 0.2, 0.1); 
         
         // Render the scene 
         renderer.render(scene, camera);
