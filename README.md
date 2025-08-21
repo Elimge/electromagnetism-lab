@@ -1,38 +1,51 @@
-# sv
+# Electromagnetism Virtual Lab
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+An interactive web application designed to help students and educators visualize and understand the fundamental principles of electromagnetism, including Biot-Savart's Law and Ampere's Law.
 
-## Creating a project
+**[➡️ Live Demo Link - ¡Enlace a la Demo en Vivo!](https://elimge.github.io/electromagnetism-lab/)**
 
-If you're seeing this, you've probably already done this step. Congrats!
+---
 
-```sh
-# create a new project in the current directory
-npx sv create
+## ✨ Features
 
-# create a new project in my-app
-npx sv create my-app
-```
+*   **Interactive 3D Simulations:** Manipulate parameters in real-time and see their effect on magnetic fields.
+*   **Multiple Scenarios:** Explore three fundamental cases: the infinite straight wire, the circular loop, and the solenoid.
+*   **Bilingual Interface:** Fully available in English and Spanish.
+*   **Light & Dark Mode:** Choose the theme that's most comfortable for your eyes.
+*   **Responsive Design:** Works on desktops, tablets, and mobile devices.
 
-## Developing
+## 🛠️ Built With
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+*   **[SvelteKit](https://kit.svelte.dev/):** The web framework for building the application.
+*   **[Three.js](https://threejs.org/):** For rendering the 3D simulations.
+*   **[TypeScript](https://www.typescriptlang.org/):** For robust and maintainable code.
+*   **[svelte-i18n](https://github.com/cibernox/svelte-i18n):** For internationalization.
 
-```sh
-npm run dev
+## 🚀 Getting Started
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+To run this project locally:
 
-## Building
+1.  Clone the repository:
+    ```bash
+    git clone https://github.com/Elimge/electromagnetism-lab.git
+    ```
+2.  Navigate to the project directory:
+    ```bash
+    cd electromagnetism-lab
+    ```
+3.  Install dependencies:
+    ```bash
+    npm install
+    ```
+4.  Run the development server:
+    ```bash
+    npm run dev
+    ```
 
-To create a production version of your app:
+## 🤝 Contributing
 
-```sh
-npm run build
-```
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/Elimge/electromagnetism-lab/issues) or start a [new discussion](https://github.com/Elimge/electromagnetism-lab/discussions).
 
-You can preview the production build with `npm run preview`.
+## 📄 License
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+This project is licensed under the MIT License - see the `LICENSE` file for details.

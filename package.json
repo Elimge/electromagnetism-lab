@@ -1,7 +1,14 @@
 {
 	"name": "electromagnetism-lab",
 	"private": true,
-	"version": "0.0.1",
+	"version": "1.0.0",
+	"description": "An interactive web application for teaching and learning the laws of electromagnetism.",
+	"author": "Elimge <elimge@outlook.com>",
+	"license": "MIT",
+	"repository": { 
+    	"type": "git",
+    	"url": "https://github.com/Elimge/electromagnetism-lab.git"
+  	},
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
