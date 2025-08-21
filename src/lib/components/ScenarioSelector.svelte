@@ -1,18 +1,19 @@
 <!-- src/lib/components/ScenarioSelector.svelte -->
 <script lang="ts">
     import { activeSimulation } from "$lib/stores/simulationStore";
+    import { _ } from "svelte-i18n"; 
 
 </script>
 
 <div class="selector-container">
     <button class:active={$activeSimulation === "infinite_wire"} on:click={() => ($activeSimulation = "infinite_wire")}>
-        Cable Recto
+        {$_("scenario.wire")}
     </button>
     <button class:active={$activeSimulation === "circular_loop"} on:click={() => ($activeSimulation = "circular_loop")}>
-        Espira Circular
+        {$_("scenario.loop")} 
     </button>
     <button class:active={$activeSimulation === "solenoid"} on:click={() => ($activeSimulation = "solenoid")}>
-        Solenoide
+        {$_("scenario.solenoid")}
     </button>
 </div>
 

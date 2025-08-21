@@ -3,6 +3,7 @@
     import { createEventDispatcher } from "svelte";
     import Slider from "./shared/Slider.svelte";
     import ScenarioSelector from "./ScenarioSelector.svelte";
+    import { _ } from "svelte-i18n"; 
 
     let current = 5;
 
@@ -17,14 +18,14 @@
  </script>
 
 <div class="panel">
-        <h3>Controles</h3>
+        <h3>{$_("controls.title")}</h3>
         <Slider
-                label="Corriente"
+                label={$_("controls.current")}
                 bind:value={current}
                 min={-10}
                 max={10}
                 step={0.1}
-                unit="A"
+                unit={$_("controls.unit")}
                 on:change={handleCurrentChange}
         />
 

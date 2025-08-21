@@ -1,0 +1,32 @@
+{
+	"header": {
+		"title": "Laboratorio Virtual de Electromagnetismo"
+	},
+	"controls": {
+		"title": "Controles",
+		"current": "Corriente",
+		"unit": "A"
+	},
+	"scenario": {
+		"wire": "Cable Recto",
+		"loop": "Espira Circular",
+		"solenoid": "Solenoide"
+	},
+    "theory": {
+		"title": "Fundamento Teórico",
+		"biot_savart": {
+			"title": "Ley de Biot-Savart",
+			"p1": "La ley de Biot-Savart se usa para calcular el campo magnético generado por una corriente eléctrica constante. Relaciona el campo magnético con la magnitud, dirección, longitud y proximidad de la corriente eléctrica.",
+			"p2": "Esta ley es fundamental en magnetoestática, jugando un papel similar al de la ley de Coulomb en electrostática."
+		},
+		"ampere": {
+			"title": "Ley de Ampere",
+			"p1": "La ley circuital de Ampere relaciona el campo magnético integrado alrededor de un bucle cerrado con la corriente eléctrica que pasa a través de la superficie del bucle.",
+			"p2": "Es particularmente útil para calcular el campo magnético de distribuciones de corriente simétricas, como un cable recto infinito o un solenoide."
+		}
+	},
+    "nav": {
+        "simulation": "Simulación",
+        "theory": "Teoría"
+    }
+}
