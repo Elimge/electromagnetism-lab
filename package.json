@@ -5,10 +5,10 @@
 	"description": "An interactive web application for teaching and learning the laws of electromagnetism.",
 	"author": "Elimge <elimge@outlook.com>",
 	"license": "MIT",
-	"repository": { 
-    	"type": "git",
-    	"url": "https://github.com/Elimge/electromagnetism-lab.git"
-  	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Elimge/electromagnetism-lab.git"
+	},
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
@@ -24,6 +24,7 @@
 		"@eslint/compat": "^1.2.5",
 		"@eslint/js": "^9.18.0",
 		"@sveltejs/adapter-auto": "^6.0.0",
+		"@sveltejs/adapter-static": "^3.0.9",
 		"@sveltejs/kit": "^2.22.0",
 		"@sveltejs/vite-plugin-svelte": "^6.0.0",
 		"@types/three": "^0.179.0",

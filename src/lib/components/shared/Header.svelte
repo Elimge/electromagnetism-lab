@@ -1,6 +1,7 @@
 <!-- src/lib/components/shared/Header.svelte -->
  <script lang="ts">
     import { page } from "$app/stores"; 
+    import { base } from "$app/paths"; 
     import ThemeToggle from "./ThemeToggle.svelte";
     import LanguageSelector from "./LanguageSelector.svelte";
     import { _ } from "svelte-i18n"; 
@@ -14,16 +15,15 @@
     <div class="title-and-nav">
         <h1>{$_("header.title")}</h1>
         <nav>
-            <a href="/" class:active={$page.url.pathname === "/"}>{navSimulation}</a>
-            <a href="/theory" class:active={$page.url.pathname === "/theory"}>{navTheory}</a>
-            <a href="/about" class:active={$page.url.pathname === "/about"}>{navAbout}</a>
+            <a href="{base}/" class:active={$page.url.pathname === base + "/"}>{navSimulation}</a>
+            <a href="{base}/theory" class:active={$page.url.pathname === base + "/theory"}>{navTheory}</a>
+            <a href="{base}/about" class:active={$page.url.pathname === base + "/about"}>{navAbout}</a>
         </nav>
     </div>
 
     <div class="controls">
         <LanguageSelector /> 
         <ThemeToggle />
-
     </div>
  </header>
 
