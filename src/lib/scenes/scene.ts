@@ -2,7 +2,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { calculateWireBField, calculateLoopBField, calculateSolenoidBField } from "$lib/physics/biotSavart";
-import { activeSimulation, type SimulationType } from "$lib/stores/simulationStore";
+import { activeSimulation } from "$lib/stores/simulationStore";
 
 // Define an interface for the state of the scene.
 interface SceneState {
@@ -16,12 +16,7 @@ export function createScene(canvas: HTMLCanvasElement) {
     scene.background = new THREE.Color(0x111111); // Background dark grey
     // The Camera
     // Define visible scene parts. 
-    const camera = new THREE.PerspectiveCamera(
-        75, // field of view
-        window.innerWidth / window.innerHeight, // aspect ratio
-        0.1, // near clipping plane
-        1000 // far clipping plane
-    )
+    const camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
     camera.position.set(3, 2, 5); // Initial camera position
 
     // The renderer
@@ -30,7 +25,7 @@ export function createScene(canvas: HTMLCanvasElement) {
         canvas: canvas, 
         antialias: true // Suaviza los bordes de los objetos
     });
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Mejora la calidad en pantallas de alta densidad
 
     // Camera controls 
@@ -90,7 +85,14 @@ export function createScene(canvas: HTMLCanvasElement) {
     const length = 1; // Initial length
     const hexColor = 0xff0000; // Red
     const bFieldVector = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), origin, length, hexColor);
-    measurementPoint.add(bFieldVector); // The arrow is sphere's kid
+    if (bFieldVector.children[0]) {
+        (bFieldVector.children[0] as THREE.Line).raycast = () => {};
+    }
+    if (bFieldVector.children[1]) {
+        (bFieldVector.children[1] as THREE.Mesh).raycast = () => {};
+    }
+    scene.add(bFieldVector); 
+    // measurementPoint.add(bFieldVector); // The arrow is sphere's kid
 
     //Ligths to gooklooking
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); 
@@ -128,21 +130,35 @@ export function createScene(canvas: HTMLCanvasElement) {
     const dragPlaneVertical = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
     function onPointerDown(event: PointerEvent) {
-        pointer.x = (event.clientX / window.innerWidth) * 2 - 1; 
-        pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        console.log("onPointerDown triggered! Click detectado.");
+
+        const rect = canvas.getBoundingClientRect();
+        pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+        console.log("Coordenadas del puntero:", { x: pointer.x, y: pointer.y });
         raycaster.setFromCamera(pointer, camera);
+
+        console.log("Buscando intersecciones en estos objetos:", draggableObjects);
         const intersects = raycaster.intersectObjects(draggableObjects);
+
+        console.log("Resultado de la intersección:", intersects);
         
         if (intersects.length > 0) {
+            console.log("¡Éxito! Objeto intersectado:", intersects[0].object);
             draggedObject = intersects[0].object;
             controls.enabled = false; // Deactive the camera to don't move everything at the same time 
+        } else {
+            console.log("Fallo: El Raycaster no intersectó con ningún objeto arrastrable.");
         }
     }
     
     function onPointerMove(event: PointerEvent) {
         if (draggedObject) {
-            pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-            pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            const rect = canvas.getBoundingClientRect();
+            pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
             raycaster.setFromCamera(pointer, camera);
 
             const intersectionPoint = new THREE.Vector3(); 
@@ -202,11 +218,20 @@ export function createScene(canvas: HTMLCanvasElement) {
         //     bFieldVector.setDirection(bFieldDirection);
         // }
         
+        bFieldVector.position.copy(measurementPoint.position);
+
         const visualizationScale = 5e5; 
         const bFieldMagnitude = bField.length() * visualizationScale;
-        const bFieldDirection = bField.normalize();
-        bFieldVector.setDirection(bFieldDirection);
-        bFieldVector.setLength(bFieldMagnitude, 0.2, 0.1); 
+        if (bFieldMagnitude < 0.001) {
+            //Invisible arrow when the current is near to zero
+            bFieldVector.visible = false;
+        } else {
+        // Visible 
+            bFieldVector.visible = true;
+            const bFieldDirection = bField.normalize();
+            bFieldVector.setDirection(bFieldDirection);
+            bFieldVector.setLength(bFieldMagnitude, 0.2, 0.1);
+}
         
         // Render the scene 
         renderer.render(scene, camera);
@@ -217,11 +242,11 @@ export function createScene(canvas: HTMLCanvasElement) {
     // Handle the redimension of the window 
     const handleResize = () => {
         // Update the camera dimensions
-        camera.aspect = window.innerWidth / window.innerHeight; 
+        camera.aspect = canvas.clientWidth / canvas.clientHeight;
         camera.updateProjectionMatrix();
 
         // Update the render dimensions
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setSize(canvas.clientWidth, canvas.clientHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     };
     window.addEventListener("resize", handleResize);
@@ -238,7 +263,7 @@ export function createScene(canvas: HTMLCanvasElement) {
             window.removeEventListener("pointerdown", onPointerDown);
             window.removeEventListener("pointermove", onPointerMove);
             window.removeEventListener("pointerup", onPointerUp);
-            window.removeEventListener("resize", () => {}); // Remove the resize listener 
+            window.removeEventListener("resize", handleResize); // Remove the resize listener 
         }
     };
 }
