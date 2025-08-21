@@ -1,0 +1,55 @@
+{
+	"header": {
+		"title": "Laboratorio Virtual de Electromagnetismo"
+	},
+	"controls": {
+		"title": "Controles",
+		"current": "Corriente",
+		"unit": "A"
+	},
+	"scenario": {
+		"wire": "Cable Recto",
+		"loop": "Espira Circular",
+		"solenoid": "Solenoide"
+	},
+    "theory": {
+		"title": "Fundamento Teórico",
+		"biot_savart": {
+			"title": "Ley de Biot-Savart",
+			"p1": "La ley de Biot-Savart se usa para calcular el campo magnético generado por una corriente eléctrica constante. Relaciona el campo magnético con la magnitud, dirección, longitud y proximidad de la corriente eléctrica.",
+			"p2": "Esta ley es fundamental en magnetoestática, jugando un papel similar al de la ley de Coulomb en electrostática."
+		},
+		"ampere": {
+			"title": "Ley de Ampere",
+			"p1": "La ley circuital de Ampere relaciona el campo magnético integrado alrededor de un bucle cerrado con la corriente eléctrica que pasa a través de la superficie del bucle.",
+			"p2": "Es particularmente útil para calcular el campo magnético de distribuciones de corriente simétricas, como un cable recto infinito o un solenoide."
+		}
+	},
+    "nav": {
+        "simulation": "Simulación",
+        "theory": "Teoría",
+        "about": "Acerca de / Feedback"
+    },
+    "about": {
+        "title": "Acerca de Este Proyecto",
+        "credits": {
+            "p1": "Esta herramienta fue creada como un proyecto personal y educativo.",
+            "author_label": "Autor",
+            "repo_label": "Repositorio"
+        },
+        "feedback": {
+            "title": "¿Tienes alguna sugerencia?",
+            "non_dev": {
+            "title": "Para Estudiantes, Profesores y Aficionados",
+            "p1": "Si tienes una idea, una sugerencia o encontraste algo que no funciona como esperabas, tu feedback es muy valioso. Por favor, deja tus comentarios en este formulario anónimo.",
+            "button": "Dejar un Comentario"
+        },
+            "dev": {
+                "title": "Para Desarrolladores",
+                "p1": "Si encontraste un bug técnico, tienes una idea para una nueva funcionalidad o quieres contribuir al código, la mejor vía es a través de GitHub.",
+                "issue_button": "Reportar un Bug",
+                "discussion_button": "Iniciar una Discusión"
+            }
+        }
+    }
+}
