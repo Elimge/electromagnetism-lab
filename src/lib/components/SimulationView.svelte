@@ -37,12 +37,22 @@
     }
 </script>
 
-<canvas bind:this={canvas}></canvas>
+<div class="simulation-container">
+	<canvas bind:this={canvas}></canvas>
+</div>
 
-<style> 
-    canvas {
-        width: 100%;
-        height: 100%;
-        display: block; 
-    }
+<style>
+	.simulation-container {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: 1; /* Layout inferior */
+	}
+	canvas {
+		width: 100%;
+		height: 100%;
+		display: block;
+	}
 </style>

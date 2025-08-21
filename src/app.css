@@ -1,0 +1,39 @@
+/* src/app.css */
+
+/* Global variables */ 
+:root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f0f0f0;
+    --bg-panel: rgba(255, 255, 255, 0.8);
+    --text-primary: #111111;
+    --text-secondary: #444444;
+    --border-color: #dddddd;
+    --header-bg: #f9f9f9;
+    --header-text: #333333;
+    --header-border: #e0e0e0;
+}
+
+
+/* When the <html> has the attribute data-theme="dark", these variables will override those in :root */
+[data-theme="dark"] {
+    --bg-primary: #111111;
+    --bg-secondary: #222222;
+    --bg-panel: rgba(40, 40, 40, 0.8);
+    --text-primary: #eeeeee;
+    --text-secondary: #bbbbbb;
+    --border-color: rgba(255, 255, 255, 0.2);
+    --header-bg: #222222;
+    --header-text: #ffffff;
+    --header-border: #444444;
+}
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+
+        

@@ -37,17 +37,21 @@
         position: absolute;
         top: 10px;
         left: 10px;
-        background-color: rgba(40, 40, 40, 0.8);
+        z-index: 10;
+        background-color: var(--bg-panel);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary); 
         padding: 1rem;
         border-radius: 8px;
-        color: white; 
         font-family: sans-serif;
         width: 250px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
     }
     h3 {
         margin-top: 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        border-bottom: 1px solid var(--border-color);
         padding-bottom: 0.5rem;
+    }
+    :global(.slider-container) {
+        color: var(--text-primary);
     }
 </style>
