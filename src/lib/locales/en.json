@@ -27,7 +27,30 @@
 	},
     "nav": {
         "simulation": "Simulation",
-        "theory": "Theory"
+        "theory": "Theory",
+        "about": "About / Feedback"
+    },
+    "about": {
+        "title": "About This Project",
+        "credits": {
+            "p1": "This tool was created as a personal and educational project.",
+            "author_label": "Author",
+            "repo_label": "Repository"
+        },
+        "feedback": {
+            "title": "Do you have any suggestions?",
+            "non_dev": {
+                "title": "For Students, Professors, and Enthusiasts",
+                "p1": "If you have an idea, a suggestion, or found something that doesn't work as expected, your feedback is very valuable. Please leave your comments in this anonymous form.",
+                "button": "Leave Feedback"
+            },
+            "dev": {
+                "title": "For Developers",
+                "p1": "If you found a technical bug, have an idea for a new feature, or want to contribute to the code, the best way is through GitHub.",
+                "issue_button": "Report a Bug",
+                "discussion_button": "Start a Discussion"
+            }
+        }
     }
 }
 

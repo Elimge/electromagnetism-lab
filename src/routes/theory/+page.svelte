@@ -36,7 +36,7 @@
 		border: 1px solid var(--border-color);
 		height: calc(100% - 6rem); /* 100% de la altura del main menos el padding vertical */
 		overflow-y: auto; /* Permite scroll si el contenido es muy largo */
-        /* font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; */
+        font-family: Tahoma, sans-serif; 
 	}
 
 	h1,

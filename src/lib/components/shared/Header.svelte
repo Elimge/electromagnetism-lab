@@ -7,6 +7,7 @@
 
     $: navSimulation = $_("nav.simulation") || "Simulation";
 	$: navTheory = $_("nav.theory") || "Theory";
+    $: navAbout = $_("nav.about") || "About"; 
 </script>
 
  <header>
@@ -15,6 +16,7 @@
         <nav>
             <a href="/" class:active={$page.url.pathname === "/"}>{navSimulation}</a>
             <a href="/theory" class:active={$page.url.pathname === "/theory"}>{navTheory}</a>
+            <a href="/about" class:active={$page.url.pathname === "/about"}>{navAbout}</a>
         </nav>
     </div>
 
@@ -40,7 +42,7 @@
 		display: flex;
 		align-items: center;
 		gap: 2rem;
-        font-family: sans-serif;
+        font-family: Tahoma, sans-serif; 
 	}
     h1 {
         font-size: 1.2rem;
