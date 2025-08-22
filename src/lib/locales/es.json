@@ -35,7 +35,8 @@
         "credits": {
             "p1": "Esta herramienta fue creada como un proyecto personal y educativo.",
             "author_label": "Autor",
-            "repo_label": "Repositorio"
+            "repo_label": "Repositorio",
+            "contact_prompt": "Para consultas profesionales, puedes contactar al autor a través de su"
         },
         "feedback": {
             "title": "¿Tienes alguna sugerencia?",
@@ -50,6 +51,11 @@
                 "issue_button": "Reportar un Bug",
                 "discussion_button": "Iniciar una Discusión"
             }
+        },
+        "wiki": {
+            "title": "Documentación del Proyecto",
+            "p1": "Para guías de usuario detalladas, consejos educativos y el fundamento teórico de las simulaciones, por favor visita nuestra Wiki completa.",
+            "button": "Ir a la Wiki"
         }
     }
 }

@@ -1,6 +1,7 @@
 <!-- src/routes/about/+page.svelte -->
 <script lang="ts">
-    import { _ } from "svelte-i18n";
+    import { _, locale } from "svelte-i18n";
+	$: wikiUrl = `https://github.com/Elimge/electromagnetism-lab/wiki/Home-(${$locale?.toUpperCase()})`;
 </script>
 
 <div class="about-container">
@@ -12,6 +13,16 @@
             <li>{$_("about.credits.author_label")}: <a href="https://github.com/Elimge" target="_blank" rel="noopener noreferrer">@elimge on GitHub</a></li>
             <li>{$_("about.credits.repo_label")}: <a href="https://github.com/Elimge/electromagnetism-lab" target="_blank" rel="noopener noreferrer">Elimge/electromagnetism-lab</a></li>
 		</ul>
+    </section>
+
+	<section class="wiki-docs">
+        <h2>{$_("about.wiki.title")}</h2>
+        <div class="feedback-box">
+            <p>{$_("about.wiki.p1")}</p>
+            <a href={wikiUrl} class="button" target="_blank" rel="noopener noreferrer">
+                {$_('about.wiki.button')}
+            </a>
+        </div>
     </section>
 
     <section class="feedback">
@@ -98,4 +109,7 @@
 		display: flex;
 		gap: 1rem;
 	}
+	.wiki-docs {
+        margin-bottom: 2rem;
+    }
 </style>
