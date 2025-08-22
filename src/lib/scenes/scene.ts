@@ -32,6 +32,7 @@ export function createScene(canvas: HTMLCanvasElement) {
     // Allow rotate, zoom or move the camera by the user
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true; 
+    controls.target.set(0, -0.5, 0);
 
     // Define the current across the cable
     const sceneState: SceneState = {
@@ -48,7 +49,7 @@ export function createScene(canvas: HTMLCanvasElement) {
     // --- Model 1: Infinite cable ---
     // 1. The infinite cable
     const wireGeometry = new THREE.CylinderGeometry(0.05, 0.05, 20, 16); // radius, radius, high, segments
-    const wireMaterial = new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.5, roughness: 0.5 }) // *
+    const wireMaterial = new THREE.MeshStandardMaterial({ color: 0xb87333, metalness: 0.7, roughness: 0.3 }) // *
     const wire = new THREE.Mesh(wireGeometry, wireMaterial); // The 'Mesh' is the final object 
     scene.add(wire); 
     
@@ -81,17 +82,33 @@ export function createScene(canvas: HTMLCanvasElement) {
 
     // 3. The Magnetic Field Vector (an arrow)
     // Now the 'ArrowHelper' represents the B Field. Initialize pointing up.
-    const origin = new THREE.Vector3(0, 0, 0); // The initial point of the arrow
-    const length = 1; // Initial length
-    const hexColor = 0xff0000; // Red
-    const bFieldVector = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), origin, length, hexColor);
-    if (bFieldVector.children[0]) {
-        (bFieldVector.children[0] as THREE.Line).raycast = () => {};
-    }
-    if (bFieldVector.children[1]) {
-        (bFieldVector.children[1] as THREE.Mesh).raycast = () => {};
-    }
-    scene.add(bFieldVector); 
+   const arrowGroup = new THREE.Group(); 
+   const arrowMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+   
+   // The body ( a cylinder )
+   const shaftGeometry = new THREE.CylinderGeometry(0.02, 0.02, 1, 8); // Radius, radius, high, segments
+   const shaft = new THREE.Mesh(shaftGeometry, arrowMaterial); 
+   shaft.position.y = 0.5; 
+
+   // The head (a cone)
+   const headGeometry = new THREE.ConeGeometry(0.08, 0.2, 8); //Radius, high, segments
+   const head = new THREE.Mesh(headGeometry, arrowMaterial); 
+   head.position.y = 1; 
+
+   arrowGroup.add(shaft);
+   arrowGroup.add(head);
+   scene.add(arrowGroup); 
+    // const origin = new THREE.Vector3(0, 0, 0); // The initial point of the arrow
+    // const length = 1; // Initial length
+    // const hexColor = 0xff0000; // Red
+    // const bFieldVector = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), origin, length, hexColor);
+    // if (bFieldVector.children[0]) {
+    //     (bFieldVector.children[0] as THREE.Line).raycast = () => {};
+    // }
+    // if (bFieldVector.children[1]) {
+    //     (bFieldVector.children[1] as THREE.Mesh).raycast = () => {};
+    // }
+    // scene.add(bFieldVector); 
     // measurementPoint.add(bFieldVector); // The arrow is sphere's kid
 
     //Ligths to gooklooking
@@ -218,21 +235,31 @@ export function createScene(canvas: HTMLCanvasElement) {
         //     bFieldVector.setDirection(bFieldDirection);
         // }
         
-        bFieldVector.position.copy(measurementPoint.position);
+        arrowGroup.position.copy(measurementPoint.position);
+
+        // bFieldVector.position.copy(measurementPoint.position);
 
         const visualizationScale = 5e5; 
         const bFieldMagnitude = bField.length() * visualizationScale;
         if (bFieldMagnitude < 0.001) {
             //Invisible arrow when the current is near to zero
-            bFieldVector.visible = false;
+            arrowGroup.visible = false;
         } else {
         // Visible 
-            bFieldVector.visible = true;
+            arrowGroup.visible = true;
+            const arrowLength = Math.min(bFieldMagnitude, 5); 
+            shaft.scale.y = arrowLength; 
+            shaft.position.y = arrowLength / 2; 
+
+            head.position.y = arrowLength;
+
             const bFieldDirection = bField.normalize();
-            bFieldVector.setDirection(bFieldDirection);
-            bFieldVector.setLength(bFieldMagnitude, 0.2, 0.1);
-}
-        
+            arrowGroup.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), bFieldDirection);
+        //     const bFieldDirection = bField.normalize();
+        //     bFieldVector.setDirection(bFieldDirection);
+        //     bFieldVector.setLength(bFieldMagnitude, 0.2, 0.1);
+        }
+
         // Render the scene 
         renderer.render(scene, camera);
     };

@@ -13,19 +13,29 @@
 		document.body.setAttribute("data-theme", $theme);
 	}
 </script>
-
-<Header />
-
-<main>
-	<slot />
-</main>
+<div class="app-container">
+	<Header />
+	<main>
+		<slot />
+	</main>
+</div>
 
 <style>
+	.app-container {
+		display: flex;
+		flex-direction: column;
+		height: 100vh;
+		overflow: hidden;
+	}
 	main {
-		/* Header - high */ 
+		flex-grow:  1;
+		position: relative;
+		overflow: hidden;
+		min-height: 0;
+		/* Header - high 
 		height: calc(100vh - 60px);
 		width: 100vw;
 		position: relative;
-		overflow: hidden;
+		overflow: hidden; */
 	}
 </style>

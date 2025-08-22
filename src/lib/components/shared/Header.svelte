@@ -75,5 +75,27 @@
         align-items: center;
         gap: 1rem;
     }
+    /* --- REGLAS PARA MÓVILES --- */
+	@media (max-width: 767px) {
+		header {
+			/* Apilamos los elementos verticalmente */
+			flex-direction: column;
+			height: auto; /* La altura se ajustará al contenido */
+			padding: 0.75rem;
+			gap: 0.75rem;
+		}
+
+		.title-and-nav {
+			/* También apilamos el título y la navegación */
+			flex-direction: column;
+			gap: 0.5rem;
+			width: 100%;
+			align-items: center; /* Centramos los elementos */
+		}
+
+		h1 {
+			font-size: 1rem;
+		}
+	}
  </style>
 

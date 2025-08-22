@@ -46,6 +46,7 @@
         border-radius: 8px;
         font-family: sans-serif;
         width: 250px;
+        transition: all 0.3s ease;
     }
     h3 {
         margin-top: 0;
@@ -55,4 +56,51 @@
     :global(.slider-container) {
         color: var(--text-primary);
     }
+    /* --- INICIA LA VERSIÓN MEJORADA PARA MÓVILES --- */
+	@media (max-width: 767px) {
+		.panel {
+			/* Posicionamiento en la barra inferior */
+			top: auto;
+			bottom: 0;
+			left: 0;
+			width: 100%;
+			border-radius: 12px 12px 0 0;
+			box-sizing: border-box;
+
+			/* Layout vertical, mucho más robusto */
+			display: flex;
+			flex-direction: column; /* Apila los elementos uno encima del otro */
+			gap: 0.75rem; /* Espacio entre los elementos apilados */
+			padding: 0.75rem 1rem;
+		}
+
+		h3 {
+			/* Ocultamos el título "Controles" en móvil para ahorrar espacio */
+			display: none;
+		}
+		
+		/* Hacemos que el selector de escenario ocupe toda la primera fila */
+		:global(.selector-container) {
+			margin-top: 0;
+			border-top: none;
+			padding-top: 0;
+		}
+	}
+
+    @media (min-width: 768px) and (max-width: 1024px) {
+	    .panel {
+		    /* Hacemos el panel un poco más pequeño en tablets */
+		    width: 220px;
+		    padding: 0.8rem;
+	    }
+	    h3 {
+		    font-size: 1rem;
+	    }
+
+	    /* Hacemos que el texto del slider sea más pequeño */
+	    :global(.slider-container label) {
+		    font-size: 0.8em;
+	    }
+    }
+    
 </style>

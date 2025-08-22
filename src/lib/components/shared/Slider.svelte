@@ -40,7 +40,7 @@
         flex-direction: column;
         gap: 4px;
         font-family: sans-serif;
-        color: white;
+        color: var(--text-primary);
     }
     label {
         font-size: 0.9em;
