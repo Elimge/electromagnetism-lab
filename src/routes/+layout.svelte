@@ -24,7 +24,7 @@
 	.app-container {
 		display: flex;
 		flex-direction: column;
-		height: 100vh;
+		height: 100svh;
 		overflow: hidden;
 	}
 	main {
