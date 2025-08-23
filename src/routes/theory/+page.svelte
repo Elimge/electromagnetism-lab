@@ -1,32 +1,42 @@
 <!-- src/routes/theory/+page.svelte -->
 <script lang="ts">
-    import { _ } from "svelte-i18n";
+	/**
+	 * A static page that displays the theoretical foundations of the project,
+	 * primarily the Biot-Savart and Ampere's laws.
+	 * All content is sourced from the i18n store.
+	 *
+	 * @page /theory
+	 */
+	import { _ } from 'svelte-i18n';
 </script>
 
 <div class="theory-container">
-    <h1>{$_("theory.title")}</h1>
+	<h1>{$_('theory.title')}</h1>
 
-    <section>
-        <h2>{$_("theory.biot_savart.title")}</h2>
-        <p>{$_("theory.biot_savart.p1")}</p>
-        <div class="formula">
-            <p>d<b>B</b> = (μ₀ / 4π) * (I * d<b>l</b> x <b>r̂</b>) / r²</p>
-        </div>
-        <p>{$_("theory.biot_savart.p2")}</p>
-    </section>
+	<!-- Section for the Biot-Savart Law -->
+	<section>
+		<h2>{$_('theory.biot_savart.title')}</h2>
+		<p>{$_('theory.biot_savart.p1')}</p>
+		<div class="formula">
+			<!-- The formula is hardcoded in HTML for rich text formatting (<b>, ̂, etc.) -->
+			<p>d<b>B</b> = (μ₀ / 4π) * (I * d<b>l</b> x <b>r̂</b>) / r²</p>
+		</div>
+		<p>{$_('theory.biot_savart.p2')}</p>
+	</section>
 
-    <section>
-        <h2>{$_("theory.ampere.title")}</h2>
-        <p>{$_("theory.ampere.p1")}</p>
-        <div class="formula">
-            <p>∮ <b>B</b> ⋅ d<b>l</b> = μ₀ * I<sub>enc</sub></p>
-        </div>
-        <p>{$_("theory.ampere.p2")}</p>
-    </section>
+	<!-- Section for Ampere's Law -->
+	<section>
+		<h2>{$_('theory.ampere.title')}</h2>
+		<p>{$_('theory.ampere.p1')}</p>
+		<div class="formula">
+			<p>∮ <b>B</b> ⋅ d<b>l</b> = μ₀ * I<sub>enc</sub></p>
+		</div>
+		<p>{$_('theory.ampere.p2')}</p>
+	</section>
 </div>
 
 <style>
-    .theory-container {
+	.theory-container {
 		max-width: 800px;
 		margin: 2rem auto;
 		padding: 1rem 2rem;
@@ -36,7 +46,7 @@
 		border: 1px solid var(--border-color);
 		height: calc(100% - 6rem); /* 100% de la altura del main menos el padding vertical */
 		overflow-y: auto; /* Permite scroll si el contenido es muy largo */
-        font-family: Tahoma, sans-serif; 
+		font-family: Tahoma, sans-serif;
 	}
 
 	h1,

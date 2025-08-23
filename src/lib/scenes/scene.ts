@@ -1,269 +1,282 @@
 // src/lib/scenes/scene.ts
-import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { calculateWireBField, calculateLoopBField, calculateSolenoidBField } from "$lib/physics/biotSavart";
-import { activeSimulation } from "$lib/stores/simulationStore";
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import {
+	calculateWireBField,
+	calculateLoopBField,
+	calculateSolenoidBField
+} from '$lib/physics/biotSavart';
+import { activeSimulation } from '$lib/stores/simulationStore';
 
-// Define an interface for the state of the scene.
+/**
+ * Interface for the mutable state of the scene, which can be updated from outside.
+ */
 interface SceneState {
-    current: number;
+	current: number;
 }
 
+/**
+ * Initializes and manages the entire Three.js scene, including objects, controls, and rendering.
+ * @param canvas The HTMLCanvasElement to render the scene into.
+ * @returns An object with an `update` method to change the scene's state and a `destroy` method for cleanup.
+ */
 export function createScene(canvas: HTMLCanvasElement) {
-    // The Scene
-    // Main container of objects, lights and cameras
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x111111); // Background dark grey
-    // The Camera
-    // Define visible scene parts. 
-    const camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
-    camera.position.set(3, 2, 5); // Initial camera position
+	// --- Core Three.js Components ---
+	const scene = new THREE.Scene();
+	scene.background = new THREE.Color(0x111111);
 
-    // The renderer
-    // Draw the scene since the POV canvas camera
-    const renderer = new THREE.WebGLRenderer({
-        canvas: canvas, 
-        antialias: true // Suaviza los bordes de los objetos
-    });
-    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Mejora la calidad en pantallas de alta densidad
+	const camera = new THREE.PerspectiveCamera(
+		75,
+		canvas.clientWidth / canvas.clientHeight,
+		0.1,
+		1000
+	);
+	camera.position.set(3, 2, 5); // Initial camera position
 
-    // Camera controls 
-    // Allow rotate, zoom or move the camera by the user
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true; 
+	const renderer = new THREE.WebGLRenderer({
+		canvas: canvas,
+		antialias: true
+	});
+	renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+	renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    // Define the current across the cable
-    const sceneState: SceneState = {
-        current: 5 // Amperes
-    }
+	const controls = new OrbitControls(camera, renderer.domElement);
+	controls.enableDamping = true; // Provides a smoother, more realistic camera movement.
+	controls.target.set(0, -0.5, 0); // Aims camera slightly downwards.
 
-    // Save the dimensions of the models 
-    const LOOP_RADIUS = 2; 
-    const SOLENOID_HEIGHT = 4;
-    const SOLENOID_TURNS = 20; 
+	// --- Scene State & Constants ---
+	const sceneState: SceneState = {
+		current: 5 // Default current in Amperes
+	};
 
-    // The Objects (Geometry + Material = Mesh)
-    // To create a visible object, need a 'geometry' (the shape) and a 'material' (color or texture).
-    // --- Model 1: Infinite cable ---
-    // 1. The infinite cable
-    const wireGeometry = new THREE.CylinderGeometry(0.05, 0.05, 20, 16); // radius, radius, high, segments
-    const wireMaterial = new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.5, roughness: 0.5 }) // *
-    const wire = new THREE.Mesh(wireGeometry, wireMaterial); // The 'Mesh' is the final object 
-    scene.add(wire); 
-    
-    // --- Model 2: Circular loop ---
-    const loopGeometry = new THREE.TorusGeometry(LOOP_RADIUS, 0.05, 16, 64); // toro radius, tube radius 
-    const loop = new THREE.Mesh(loopGeometry, wireMaterial); 
-    loop.rotation.x = Math.PI / 2; // Rotate to be in XZ plane 
-    scene.add(loop); 
+	// Geometric constants for the models. Units are in meters.
+	const LOOP_RADIUS = 2;
+	const SOLENOID_HEIGHT = 4;
+	const SOLENOID_TURNS = 20;
 
-    // --- Model 3: Solenoid ---
-    const solenoidPoints = []; 
-    for (let i = 0; i <= SOLENOID_TURNS *2; i += 0.1) {
-        const y = (i/ (SOLENOID_TURNS * 2) -0.5) * SOLENOID_HEIGHT;
-        const x = Math.cos(i * Math.PI) * 1;
-        const z = Math.sin(i * Math.PI) * 1;
-        solenoidPoints.push(new THREE.Vector3(x, y, z));
-    } 
-    const solenoidCurve = new THREE.CatmullRomCurve3(solenoidPoints);
-    const solenoidGeometry = new THREE.TubeGeometry(solenoidCurve, 256, 0.05, 16, false);
-    const solenoid = new THREE.Mesh(solenoidGeometry, wireMaterial); 
-    scene.add(solenoid);
+	// --- 3D Models ---
+	const wireMaterial = new THREE.MeshStandardMaterial({
+		color: 0xb87333, // Copper-like color
+		metalness: 0.7,
+		roughness: 0.3
+	});
 
+	// 1. Infinite Straight Wire Model
+	const wireGeometry = new THREE.CylinderGeometry(0.05, 0.05, 20, 16); // radius, radius, high, segments
+	const wire = new THREE.Mesh(wireGeometry, wireMaterial);
+	scene.add(wire);
 
-    // 2. The measuring point (a little sphere)
-    const pointGeometry = new THREE.SphereGeometry(0.15, 16, 16); //radius, segments, segments 
-    const pointMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-    const measurementPoint = new THREE.Mesh(pointGeometry, pointMaterial);
-    measurementPoint.position.set(2, 0, 0) //two units of the axis x of the cable
-    scene.add(measurementPoint);
+	// 2. Circular Loop Model
+	const loopGeometry = new THREE.TorusGeometry(LOOP_RADIUS, 0.05, 16, 64); // toro radius, tube radius
+	const loop = new THREE.Mesh(loopGeometry, wireMaterial);
+	loop.rotation.x = Math.PI / 2; // Rotate to align with the XZ plane.
+	scene.add(loop);
 
-    // 3. The Magnetic Field Vector (an arrow)
-    // Now the 'ArrowHelper' represents the B Field. Initialize pointing up.
-    const origin = new THREE.Vector3(0, 0, 0); // The initial point of the arrow
-    const length = 1; // Initial length
-    const hexColor = 0xff0000; // Red
-    const bFieldVector = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), origin, length, hexColor);
-    if (bFieldVector.children[0]) {
-        (bFieldVector.children[0] as THREE.Line).raycast = () => {};
-    }
-    if (bFieldVector.children[1]) {
-        (bFieldVector.children[1] as THREE.Mesh).raycast = () => {};
-    }
-    scene.add(bFieldVector); 
-    // measurementPoint.add(bFieldVector); // The arrow is sphere's kid
+	// 3. Solenoid Model
+	const solenoidPoints = [];
+	// Create a helical path for the solenoid's tube geometry.
+	for (let i = 0; i <= SOLENOID_TURNS * 2; i += 0.1) {
+		const y = (i / (SOLENOID_TURNS * 2) - 0.5) * SOLENOID_HEIGHT;
+		const x = Math.cos(i * Math.PI) * 1; // Radius of 1 meter
+		const z = Math.sin(i * Math.PI) * 1;
+		solenoidPoints.push(new THREE.Vector3(x, y, z));
+	}
+	const solenoidCurve = new THREE.CatmullRomCurve3(solenoidPoints);
+	const solenoidGeometry = new THREE.TubeGeometry(solenoidCurve, 256, 0.05, 16, false);
+	const solenoid = new THREE.Mesh(solenoidGeometry, wireMaterial);
+	scene.add(solenoid);
 
-    //Ligths to gooklooking
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); 
-    scene.add(ambientLight);
+	// --- Visualization Helpers ---
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8); 
-    directionalLight.position.set(5, 5, 5);
-    scene.add(directionalLight);
+	// 1. The movable measurement point (a white sphere)
+	const pointGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+	const pointMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+	const measurementPoint = new THREE.Mesh(pointGeometry, pointMaterial);
+	measurementPoint.position.set(2, 0, 0);
+	scene.add(measurementPoint);
 
-    // Suscribe to the store to update the visibility 
-    let currentSimulation: string; 
-    const unsubscribe = activeSimulation.subscribe((simulation) => {
-        currentSimulation = simulation; // Save the actual status 
-        wire.visible = simulation === "infinite_wire";
-        loop.visible = simulation === "circular_loop";
-        solenoid.visible = simulation === "solenoid";
-        // 
-        measurementPoint.visible = true;
+	// 2. The magnetic field vector (a custom red arrow).
+	const arrowGroup = new THREE.Group();
+	const arrowMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+	// The arrow is composed of a cylinder (shaft) and a cone (head).
+	const shaftGeometry = new THREE.CylinderGeometry(0.02, 0.02, 1, 8); // Radius, radius, high, segments
+	const shaft = new THREE.Mesh(shaftGeometry, arrowMaterial);
+	shaft.position.y = 0.5; // Position relative to the group's center.
+	const headGeometry = new THREE.ConeGeometry(0.08, 0.2, 8); //Radius, high, segments
+	const head = new THREE.Mesh(headGeometry, arrowMaterial);
+	head.position.y = 1;
 
-        // Re ubicate the sphere at initial point 
-        if (simulation === "infinite_wire") {
-            measurementPoint.position.set(2, 0, 0); 
-        } else {
-            measurementPoint.position.set(0, 0, 0);
-        }
-    });
+	arrowGroup.add(shaft);
+	arrowGroup.add(head);
+	scene.add(arrowGroup);
 
-    const raycaster = new THREE.Raycaster();
-    const pointer = new THREE.Vector2();
-    let draggedObject: THREE.Object3D | null = null; 
-    const draggableObjects = [measurementPoint];
+	// --- Lighting ---
+	const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+	scene.add(ambientLight);
 
-    // A invisible plane at y=0 on which it will drag the sphere.
-    const dragPlaneHorizontal = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-    const dragPlaneVertical = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+	const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+	directionalLight.position.set(5, 5, 5);
+	scene.add(directionalLight);
 
-    function onPointerDown(event: PointerEvent) {
-        console.log("onPointerDown triggered! Click detectado.");
+	// --- Svelte Store Integration ---
+	let currentSimulation: string;
+	const unsubscribe = activeSimulation.subscribe((simulation) => {
+		currentSimulation = simulation;
+		// Toggle visibility of the main models based on the selected scenario.
+		wire.visible = simulation === 'infinite_wire';
+		loop.visible = simulation === 'circular_loop';
+		solenoid.visible = simulation === 'solenoid';
+		//
+		measurementPoint.visible = true;
 
-        const rect = canvas.getBoundingClientRect();
-        pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+		// Reset the measurement point to a sensible default position for each scenario.
+		if (simulation === 'infinite_wire') {
+			measurementPoint.position.set(2, 0, 0);
+		} else {
+			// For loop and solenoid, the most interesting area is along the central axis.
+			measurementPoint.position.set(0, 0, 0);
+		}
+	});
 
-        console.log("Coordenadas del puntero:", { x: pointer.x, y: pointer.y });
-        raycaster.setFromCamera(pointer, camera);
+	// --- Interactivity (Drag & Drop) ---
+	const raycaster = new THREE.Raycaster();
+	const pointer = new THREE.Vector2();
+	let draggedObject: THREE.Object3D | null = null;
+	const draggableObjects = [measurementPoint];
 
-        console.log("Buscando intersecciones en estos objetos:", draggableObjects);
-        const intersects = raycaster.intersectObjects(draggableObjects);
+	// Define invisible planes to constrain the dragging movement.
+	const dragPlaneHorizontal = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+	const dragPlaneVertical = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
-        console.log("Resultado de la intersección:", intersects);
-        
-        if (intersects.length > 0) {
-            console.log("¡Éxito! Objeto intersectado:", intersects[0].object);
-            draggedObject = intersects[0].object;
-            controls.enabled = false; // Deactive the camera to don't move everything at the same time 
-        } else {
-            console.log("Fallo: El Raycaster no intersectó con ningún objeto arrastrable.");
-        }
-    }
-    
-    function onPointerMove(event: PointerEvent) {
-        if (draggedObject) {
-            const rect = canvas.getBoundingClientRect();
-            pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-            pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+	function onPointerDown(event: PointerEvent) {
+		const rect = canvas.getBoundingClientRect();
+		pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+		pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
-            raycaster.setFromCamera(pointer, camera);
+		raycaster.setFromCamera(pointer, camera);
 
-            const intersectionPoint = new THREE.Vector3(); 
-            
-            if (currentSimulation === "infinite_wire") {
-                raycaster.ray.intersectPlane(dragPlaneHorizontal, intersectionPoint); 
-                draggedObject.position.set(intersectionPoint.x, 0, intersectionPoint.z); 
-            } else {
-                raycaster.ray.intersectPlane(dragPlaneVertical, intersectionPoint); 
-                draggedObject.position.set(0, intersectionPoint.y, 0); 
-            }
-        }
-    }
+		const intersects = raycaster.intersectObjects(draggableObjects);
 
-    function onPointerUp() {
-        draggedObject = null; 
-        controls.enabled = true; // Reactivate the camera 
-    }
+		if (intersects.length > 0) {
+			draggedObject = intersects[0].object;
+			controls.enabled = false; // Disable camera controls while dragging an object
+		}
+	}
 
-    // Register the event listeners 
-    window.addEventListener("pointerdown", onPointerDown);
-    window.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("pointerup", onPointerUp);
+	function onPointerMove(event: PointerEvent) {
+		if (draggedObject) {
+			const rect = canvas.getBoundingClientRect();
+			pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+			pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
-    // Animation Loop 
-    const animate = () => {
-        requestAnimationFrame(animate); // Call 'animate' in the next frame 
-        controls.update(); // Update the controlls in each photograme for damping works.
+			raycaster.setFromCamera(pointer, camera);
 
-        let bField = new THREE.Vector3(0, 0, 0); 
+			const intersectionPoint = new THREE.Vector3();
 
-        switch (currentSimulation) {
-            case "infinite_wire" :
-                bField = calculateWireBField(sceneState.current, measurementPoint.position);
-                break; 
-            case "circular_loop":
-                bField = calculateLoopBField(sceneState.current, LOOP_RADIUS, measurementPoint.position);
-                break;
-            case "solenoid":
-                bField = calculateSolenoidBField(sceneState.current, SOLENOID_TURNS, SOLENOID_HEIGHT, measurementPoint.position); 
-                break; 
-        }
+			// Constrain movement based on the current simulation scenario.
+			if (currentSimulation === 'infinite_wire') {
+				// For the wire, allow free movement on the horizontal plane.
+				raycaster.ray.intersectPlane(dragPlaneHorizontal, intersectionPoint);
+				draggedObject.position.set(intersectionPoint.x, 0, intersectionPoint.z);
+			} else {
+				// For the loop and solenoid, restrict movement to the vertical axis.
+				raycaster.ray.intersectPlane(dragPlaneVertical, intersectionPoint);
+				draggedObject.position.set(0, intersectionPoint.y, 0);
+			}
+		}
+	}
 
-        // The physics only updates if the object is visible 
-        // if (measurementPoint.visible) {
-        //     // At each frame, we calculate the magnetic field at the current position of the sphere.
-        //     const bField = calculateWireBField(sceneState.current, measurementPoint.position);
-    
-        //     // The actual magnetic field values (Teslas) are very small.
-        //     // We scale them by a large factor so the arrow is visible.
-        //     const visualizationScale = 5e5;
-        //     const bFieldMagnitude = bField.length() * visualizationScale;
-        //     const bFieldDirection = bField.normalize();
-    
-        //     //Update the arrow's direction and length.
-        //     bFieldVector.setLength(bFieldMagnitude);
-        //     bFieldVector.setDirection(bFieldDirection);
-        // }
-        
-        bFieldVector.position.copy(measurementPoint.position);
+	function onPointerUp() {
+		draggedObject = null;
+		controls.enabled = true; // Re-enable camera controls.
+	}
 
-        const visualizationScale = 5e5; 
-        const bFieldMagnitude = bField.length() * visualizationScale;
-        if (bFieldMagnitude < 0.001) {
-            //Invisible arrow when the current is near to zero
-            bFieldVector.visible = false;
-        } else {
-        // Visible 
-            bFieldVector.visible = true;
-            const bFieldDirection = bField.normalize();
-            bFieldVector.setDirection(bFieldDirection);
-            bFieldVector.setLength(bFieldMagnitude, 0.2, 0.1);
-}
-        
-        // Render the scene 
-        renderer.render(scene, camera);
-    };
-    
-    animate();
+	// --- Animation Loop ---
+	const animate = () => {
+		requestAnimationFrame(animate);
+		controls.update(); // Required if enableDamping is true
 
-    // Handle the redimension of the window 
-    const handleResize = () => {
-        // Update the camera dimensions
-        camera.aspect = canvas.clientWidth / canvas.clientHeight;
-        camera.updateProjectionMatrix();
+		// 1. Calculate the magnetic field based on the current scenario.
+		let bField = new THREE.Vector3(0, 0, 0);
+		switch (currentSimulation) {
+			case 'infinite_wire':
+				bField = calculateWireBField(sceneState.current, measurementPoint.position);
+				break;
+			case 'circular_loop':
+				bField = calculateLoopBField(sceneState.current, LOOP_RADIUS, measurementPoint.position);
+				break;
+			case 'solenoid':
+				bField = calculateSolenoidBField(
+					sceneState.current,
+					SOLENOID_TURNS,
+					SOLENOID_HEIGHT,
+					measurementPoint.position
+				);
+				break;
+		}
 
-        // Update the render dimensions
-        renderer.setSize(canvas.clientWidth, canvas.clientHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    };
-    window.addEventListener("resize", handleResize);
+		// 2. Update the visualization arrow.
+		arrowGroup.position.copy(measurementPoint.position);
 
-    return {
-        update: (newState: Partial<SceneState>) => {
-            // Object.assign allows us to merge the new state with the existing one.
-            Object.assign(sceneState, newState);
-        },
+		// The raw magnetic field values (in Teslas) are extremely small, so we scale them up for visibility.
+		const visualizationScale = 5e5;
+		const bFieldMagnitude = bField.length() * visualizationScale;
+		if (bFieldMagnitude < 0.001) {
+			arrowGroup.visible = false; // Hide arrow if the field is negligible.
+		} else {
+			arrowGroup.visible = true;
+			// Clamp the arrow's length to a max value to prevent it from becoming excessively long.
+			const arrowLength = Math.min(bFieldMagnitude, 5);
+			shaft.scale.y = arrowLength;
+			shaft.position.y = arrowLength / 2;
+			head.position.y = arrowLength;
 
-        // Return a function to clean the event listeners 
-        destroy: () => {
-            unsubscribe(); 
-            window.removeEventListener("pointerdown", onPointerDown);
-            window.removeEventListener("pointermove", onPointerMove);
-            window.removeEventListener("pointerup", onPointerUp);
-            window.removeEventListener("resize", handleResize); // Remove the resize listener 
-        }
-    };
+			// Orient the arrow to point in the direction of the magnetic field.
+			const bFieldDirection = bField.normalize();
+			// The default arrow points along +Y, so we find the rotation from +Y to the field direction.
+			arrowGroup.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), bFieldDirection);
+		}
+
+		// 3. Render the final scene.
+		renderer.render(scene, camera);
+	};
+
+	animate();
+
+	// --- Lifecycle Management ---
+	const handleResize = () => {
+		camera.aspect = canvas.clientWidth / canvas.clientHeight;
+		camera.updateProjectionMatrix();
+		renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+		renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+	};
+
+	// Register event listeners.
+	window.addEventListener('pointerdown', onPointerDown);
+	window.addEventListener('pointermove', onPointerMove);
+	window.addEventListener('pointerup', onPointerUp);
+	window.addEventListener('resize', handleResize);
+
+	// Return methods to control the scene from outside.
+	return {
+		/**
+		 * Updates the internal state of the scene (e.g., the current).
+		 * @param newState A partial state object.
+		 */
+		update: (newState: Partial<SceneState>) => {
+			// Object.assign allows us to merge the new state with the existing one.
+			Object.assign(sceneState, newState);
+		},
+
+		/**
+		 * Cleans up resources and event listeners to prevent memory leaks when the component is destroyed.
+		 */
+		destroy: () => {
+			unsubscribe();
+			window.removeEventListener('pointerdown', onPointerDown);
+			window.removeEventListener('pointermove', onPointerMove);
+			window.removeEventListener('pointerup', onPointerUp);
+			window.removeEventListener('resize', handleResize); // Remove the resize listener
+		}
+	};
 }

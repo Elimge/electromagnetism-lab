@@ -1,10 +1,22 @@
 // src/lib/stores/simulationStore.ts
 
-import { writable } from "svelte/store"; 
+/**
+ * This module manages the global state for the currently active simulation scenario.
+ */
+import { writable } from 'svelte/store';
 
-// Define the posibles types of simulation that the app can has 
-export type SimulationType = "infinite_wire" | "circular_loop" | "solenoid"; 
+/**
+ * Defines the possible string literal identifiers for each simulation scenario.
+ * These values correspond to the logic used in `scene.ts`.
+ */
+export type SimulationType = 'infinite_wire' | 'circular_loop' | 'solenoid';
 
-// Create the store. 'writable' the value can change since everywhere 
-// Initialize with the value = 'infinite_wire', who will be the default simulation 
-export const activeSimulation = writable<SimulationType>("infinite_wire");
+/**
+ * A writable Svelte store that holds the identifier of the currently active simulation.
+ *
+ * Components like `ScenarioSelector` write to this store, and the main `scene.ts`
+ * subscribes to it to determine which 3D model and physics formula to use.
+ *
+ * @default 'infinite_wire'
+ */
+export const activeSimulation = writable<SimulationType>('infinite_wire');

@@ -1,6 +1,5 @@
-
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
-import adapter from '@sveltejs/adapter-static'; 
+import adapter from '@sveltejs/adapter-static';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -14,13 +13,13 @@ const config = {
 		// See https://svelte.dev/docs/kit/adapters for more information about adapters.
 		adapter: adapter({
 			pages: 'docs',
-      		assets: 'docs',
-      		fallback: null,
-      		precompress: false
-    	}),
+			assets: 'docs',
+			fallback: null,
+			precompress: false
+		}),
 
 		paths: {
-			base: process.env.NODE_ENV === "production" ? "/electromagnetism-lab" : ""
+			base: process.env.NODE_ENV === 'production' ? '/electromagnetism-lab' : ''
 		}
 	}
 };
