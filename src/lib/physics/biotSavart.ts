@@ -4,7 +4,7 @@
  * This module contains the core physics calculations for the magnetic fields
  * based on the Biot-Savart and Ampere's laws for specific geometries.
  */
-import * as THREE from "three";
+import * as THREE from 'three';
 
 // --- Physical Constants ---
 
@@ -12,12 +12,12 @@ import * as THREE from "three";
  * Vacuum permeability constant (μ₀).
  * Unit: T·m/A (Tesla-meters per Ampere).
  */
-const MU0 = 4 * Math.PI * 1e-7; 
+const MU0 = 4 * Math.PI * 1e-7;
 
 /**
  * A commonly used derived constant (μ₀ / 2π) for wire calculations.
  */
-const MU0_OVER_2PI = 2e-7; 
+const MU0_OVER_2PI = 2e-7;
 
 // --- Magnetic Field Calculation Functions ---
 
@@ -29,18 +29,25 @@ const MU0_OVER_2PI = 2e-7;
  * @param measurementPosition The 3D point in space where the field is to be calculated.
  * @returns A THREE.Vector3 representing the magnetic field B in Teslas (T). Returns a zero vector if the position is on the wire.
  */
-export function calculateWireBField(current: number, measurementPosition: THREE.Vector3): THREE.Vector3 {
-    // Calculate the perpendicular distance (r) from the wire (Y-axis) to the point in the XZ plane.
-    const r = Math.sqrt(measurementPosition.x ** 2 + measurementPosition.z ** 2); 
-    // To avoid division by zero, the field is considered zero right on the wire.
-    if (r === 0) return new THREE.Vector3(0, 0, 0); 
-    // Magnitude of the magnetic field: B = (μ₀ * I) / (2 * π * r)
-    const bMagnitude = (MU0_OVER_2PI * current) / r; 
-    // The direction of the field is tangential, determined by the right-hand rule.
+export function calculateWireBField(
+	current: number,
+	measurementPosition: THREE.Vector3
+): THREE.Vector3 {
+	// Calculate the perpendicular distance (r) from the wire (Y-axis) to the point in the XZ plane.
+	const r = Math.sqrt(measurementPosition.x ** 2 + measurementPosition.z ** 2);
+	// To avoid division by zero, the field is considered zero right on the wire.
+	if (r === 0) return new THREE.Vector3(0, 0, 0);
+	// Magnitude of the magnetic field: B = (μ₀ * I) / (2 * π * r)
+	const bMagnitude = (MU0_OVER_2PI * current) / r;
+	// The direction of the field is tangential, determined by the right-hand rule.
 	// For a vector (x, 0, z), the perpendicular tangential vector is (z, 0, -x) for a positive current.
-    const bDirection = new THREE.Vector3(measurementPosition.z, 0, -measurementPosition.x).normalize(); 
-    
-    return bDirection.multiplyScalar(bMagnitude);
+	const bDirection = new THREE.Vector3(
+		measurementPosition.z,
+		0,
+		-measurementPosition.x
+	).normalize();
+
+	return bDirection.multiplyScalar(bMagnitude);
 }
 
 /**
@@ -51,20 +58,24 @@ export function calculateWireBField(current: number, measurementPosition: THREE.
  * @param measurementPosition The 3D point on the Y-axis where the field is measured.
  * @returns A THREE.Vector3 representing the magnetic field B in Teslas (T).
  */
-export function calculateLoopBField(current: number, radius: number, measurementPosition: THREE.Vector3): THREE.Vector3 {
-    const y = measurementPosition.y; // We only care about the distance along the axis.
-    const rSquared = radius * radius; 
-    
-    // Formula for on-axis field: B = (μ₀ * I * R²) / (2 * (y² + R²)^(3/2))
-    const denominator = 2 * Math.pow(y * y + rSquared, 1.5);
-    if (denominator === 0) return new THREE.Vector3(0, 0, 0); 
+export function calculateLoopBField(
+	current: number,
+	radius: number,
+	measurementPosition: THREE.Vector3
+): THREE.Vector3 {
+	const y = measurementPosition.y; // We only care about the distance along the axis.
+	const rSquared = radius * radius;
 
-    const bMagnitude = (MU0 * current * rSquared) / denominator; 
+	// Formula for on-axis field: B = (μ₀ * I * R²) / (2 * (y² + R²)^(3/2))
+	const denominator = 2 * Math.pow(y * y + rSquared, 1.5);
+	if (denominator === 0) return new THREE.Vector3(0, 0, 0);
 
-    // On the central axis, the field vector points purely in the +Y direction (or -Y if current is negative).
-    const bDirection = new THREE.Vector3(0, 1, 0);
+	const bMagnitude = (MU0 * current * rSquared) / denominator;
 
-    return bDirection.multiplyScalar(bMagnitude);
+	// On the central axis, the field vector points purely in the +Y direction (or -Y if current is negative).
+	const bDirection = new THREE.Vector3(0, 1, 0);
+
+	return bDirection.multiplyScalar(bMagnitude);
 }
 
 /**
@@ -76,23 +87,28 @@ export function calculateLoopBField(current: number, radius: number, measurement
  * @param measurementPosition The 3D point in space to check for the field.
  * @returns A THREE.Vector3 representing the magnetic field B in Teslas (T). Returns zero if the point is outside the solenoid.
  */
-export function calculateSolenoidBField(current: number, turns: number, height: number, measurementPosition: THREE.Vector3): THREE.Vector3 {
-    // Check if the measurement point is physically inside the solenoid's cylindrical volume.
-    const radius = Math.sqrt(measurementPosition.x ** 2 + measurementPosition.z ** 2);
-    // Note: The solenoid's radius is hardcoded as 1 unit in scene.ts, so we check against that here.
-    const isInside = radius < 1 && Math.abs(measurementPosition.y) < height / 2;
+export function calculateSolenoidBField(
+	current: number,
+	turns: number,
+	height: number,
+	measurementPosition: THREE.Vector3
+): THREE.Vector3 {
+	// Check if the measurement point is physically inside the solenoid's cylindrical volume.
+	const radius = Math.sqrt(measurementPosition.x ** 2 + measurementPosition.z ** 2);
+	// Note: The solenoid's radius is hardcoded as 1 unit in scene.ts, so we check against that here.
+	const isInside = radius < 1 && Math.abs(measurementPosition.y) < height / 2;
 
-    if (!isInside) {
-        return new THREE.Vector3(0, 0, 0); /// Field outside an ideal solenoid is zero. 
-    }
+	if (!isInside) {
+		return new THREE.Vector3(0, 0, 0); /// Field outside an ideal solenoid is zero.
+	}
 
-    const turnsPerMeter = turns / height;  // n = N / L
+	const turnsPerMeter = turns / height; // n = N / L
 
-    // Formula for the uniform field inside an ideal solenoid: B = μ₀ * n * I
-    const bMagnitude = MU0 * turnsPerMeter * current;
+	// Formula for the uniform field inside an ideal solenoid: B = μ₀ * n * I
+	const bMagnitude = MU0 * turnsPerMeter * current;
 
-    // The field inside is uniform and points along the solenoid's axis (+Y direction)
-    const bDirection = new THREE.Vector3(0, 1, 0); 
+	// The field inside is uniform and points along the solenoid's axis (+Y direction)
+	const bDirection = new THREE.Vector3(0, 1, 0);
 
-    return bDirection.multiplyScalar(bMagnitude); 
+	return bDirection.multiplyScalar(bMagnitude);
 }

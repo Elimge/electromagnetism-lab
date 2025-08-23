@@ -12,7 +12,7 @@
 		"loop": "Circular Loop",
 		"solenoid": "Solenoid"
 	},
-    "theory": {
+	"theory": {
 		"title": "Theoretical Foundation",
 		"biot_savart": {
 			"title": "Biot-Savart Law",
@@ -25,38 +25,37 @@
 			"p2": "It is particularly useful for calculating the magnetic field of symmetric current distributions, such as an infinite straight wire or a solenoid."
 		}
 	},
-    "nav": {
-        "simulation": "Simulation",
-        "theory": "Theory",
-        "about": "About / Feedback"
-    },
-    "about": {
-        "title": "About This Project",
-        "credits": {
-            "p1": "This tool was created as a personal and educational project.",
-            "author_label": "Author",
-            "repo_label": "Repository",
-            "contact_prompt": "For professional inquiries, you can contact the author via his"
-        },
-        "feedback": {
-            "title": "Do you have any suggestions?",
-            "non_dev": {
-                "title": "For Students, Professors, and Enthusiasts",
-                "p1": "If you have an idea, a suggestion, or found something that doesn't work as expected, your feedback is very valuable. Please leave your comments in this anonymous form.",
-                "button": "Leave Feedback"
-            },
-            "dev": {
-                "title": "For Developers",
-                "p1": "If you found a technical bug, have an idea for a new feature, or want to contribute to the code, the best way is through GitHub.",
-                "issue_button": "Report a Bug",
-                "discussion_button": "Start a Discussion"
-            }
-        },
-        "wiki": {
-            "title": "Project Documentation",
-            "p1": "For detailed user guides, educational tips, and the theoretical foundation of the simulations, please visit our complete Wiki.",
-            "button": "Go to the Wiki"
-        }
-    }
+	"nav": {
+		"simulation": "Simulation",
+		"theory": "Theory",
+		"about": "About / Feedback"
+	},
+	"about": {
+		"title": "About This Project",
+		"credits": {
+			"p1": "This tool was created as a personal and educational project.",
+			"author_label": "Author",
+			"repo_label": "Repository",
+			"contact_prompt": "For professional inquiries, you can contact the author via his"
+		},
+		"feedback": {
+			"title": "Do you have any suggestions?",
+			"non_dev": {
+				"title": "For Students, Professors, and Enthusiasts",
+				"p1": "If you have an idea, a suggestion, or found something that doesn't work as expected, your feedback is very valuable. Please leave your comments in this anonymous form.",
+				"button": "Leave Feedback"
+			},
+			"dev": {
+				"title": "For Developers",
+				"p1": "If you found a technical bug, have an idea for a new feature, or want to contribute to the code, the best way is through GitHub.",
+				"issue_button": "Report a Bug",
+				"discussion_button": "Start a Discussion"
+			}
+		},
+		"wiki": {
+			"title": "Project Documentation",
+			"p1": "For detailed user guides, educational tips, and the theoretical foundation of the simulations, please visit our complete Wiki.",
+			"button": "Go to the Wiki"
+		}
+	}
 }
-

@@ -1,53 +1,90 @@
 <!-- src/routes/about/+page.svelte -->
 <script lang="ts">
-    import { _, locale } from "svelte-i18n";
-	$: wikiUrl = `https://github.com/Elimge/electromagnetism-lab/wiki/Home-(${$locale?.toUpperCase()})`;
+	/**
+	 * An informational page that provides details about the project,
+	 * authors, and links for feedback and further documentation.
+	 *
+	 * @page /about
+	 */
+	import { _, locale } from 'svelte-i18n';
+	/**
+	 * A reactive variable that constructs the correct URL to the project's GitHub Wiki
+	 * based on the currently selected language.
+	 * e.g., '.../wiki/Home-(EN)' or '.../wiki/Home-(ES)'
+	 */
+	$: langCode = ($locale || 'en').slice(0, 2).toUpperCase();
+	$: wikiUrl = `https://github.com/Elimge/electromagnetism-lab/wiki/Home-(${langCode})`;
 </script>
 
 <div class="about-container">
-    <h1>{$_("about.title")}</h1>
-    
-    <section class="credits">
-        <p>{$_("about.credits.p1")}</p>
-        <ul>
-            <li>{$_("about.credits.author_label")}: <a href="https://github.com/Elimge" target="_blank" rel="noopener noreferrer">@elimge on GitHub</a></li>
-            <li>{$_("about.credits.repo_label")}: <a href="https://github.com/Elimge/electromagnetism-lab" target="_blank" rel="noopener noreferrer">Elimge/electromagnetism-lab</a></li>
+	<h1>{$_('about.title')}</h1>
+
+	<!-- Section for project credits and author information -->
+	<section class="credits">
+		<p>{$_('about.credits.p1')}</p>
+		<ul>
+			<li>
+				{$_('about.credits.author_label')}:
+				<a href="https://github.com/Elimge" target="_blank" rel="noopener noreferrer"
+					>@elimge on GitHub</a
+				>
+			</li>
+			<li>
+				{$_('about.credits.repo_label')}:
+				<a
+					href="https://github.com/Elimge/electromagnetism-lab"
+					target="_blank"
+					rel="noopener noreferrer">Elimge/electromagnetism-lab</a
+				>
+			</li>
 		</ul>
-    </section>
+	</section>
 
+	<!-- Section linking to the detailed project Wiki -->
 	<section class="wiki-docs">
-        <h2>{$_("about.wiki.title")}</h2>
-        <div class="feedback-box">
-            <p>{$_("about.wiki.p1")}</p>
-            <a href={wikiUrl} class="button" target="_blank" rel="noopener noreferrer">
-                {$_('about.wiki.button')}
-            </a>
-        </div>
-    </section>
+		<h2>{$_('about.wiki.title')}</h2>
+		<div class="feedback-box">
+			<p>{$_('about.wiki.p1')}</p>
+			<a href={wikiUrl} class="button" target="_blank" rel="noopener noreferrer">
+				{$_('about.wiki.button')}
+			</a>
+		</div>
+	</section>
 
-    <section class="feedback">
-        <h2>{$_("about.feedback.title")}</h2>
-        <div class="feedback-box non-dev">
-            <h3>{$_("about.feedback.non_dev.title")}</h3>
-            <p>{$_("about.feedback.non_dev.p1")}</p>
-            <a href="https://tally.so/r/waLXpb" class="button" target="_blank" rel="noopener noreferrer">
+	<!-- Section with links for providing feedback or contributing -->
+	<section class="feedback">
+		<h2>{$_('about.feedback.title')}</h2>
+		<div class="feedback-box non-dev">
+			<h3>{$_('about.feedback.non_dev.title')}</h3>
+			<p>{$_('about.feedback.non_dev.p1')}</p>
+			<a href="https://tally.so/r/waLXpb" class="button" target="_blank" rel="noopener noreferrer">
 				{$_('about.feedback.non_dev.button')}
 			</a>
-        </div>
+		</div>
 
-        <div class="feedback-box dev">
-            <h3>{$_("about.feedback.dev.title")}</h3>
-            <p>{$_("about.feedback.dev.p1")}</p>
-            <div class="dev-links">
-                <a href="https://github.com/Elimge/electromagnetism-lab/issues/new/choose" class="button" target="_blank" rel="noopener noreferrer">
+		<div class="feedback-box dev">
+			<h3>{$_('about.feedback.dev.title')}</h3>
+			<p>{$_('about.feedback.dev.p1')}</p>
+			<div class="dev-links">
+				<a
+					href="https://github.com/Elimge/electromagnetism-lab/issues/new/choose"
+					class="button"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
 					{$_('about.feedback.dev.issue_button')}
 				</a>
-                <a href="https://github.com/Elimge/electromagnetism-lab/discussions" class="button secondary" target="_blank" rel="noopener noreferrer">
+				<a
+					href="https://github.com/Elimge/electromagnetism-lab/discussions"
+					class="button secondary"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
 					{$_('about.feedback.dev.discussion_button')}
 				</a>
-            </div>
-        </div>
-    </section>
+			</div>
+		</div>
+	</section>
 </div>
 
 <style>
@@ -59,15 +96,13 @@
 		border-radius: 8px;
 		color: var(--text-primary);
 		border: 1px solid var(--border-color);
-		height: calc(100% - 6rem); /* 100% de la altura del main menos el padding vertical */
-		overflow-y: auto; /* Permite scroll si el contenido es muy largo */
-        font-family: Tahoma, sans-serif; 
+		height: calc(100% - 6rem);
+		overflow-y: auto;
+		font-family: Tahoma, sans-serif;
 	}
-
 	section {
 		margin-bottom: 2rem;
 	}
-
 	a {
 		color: #007bff;
 		text-decoration: none;
@@ -75,14 +110,12 @@
 	a:hover {
 		text-decoration: underline;
 	}
-
 	.feedback-box {
 		border: 1px solid var(--border-color);
 		padding: 1.5rem;
 		border-radius: 8px;
 		margin-top: 1rem;
 	}
-
 	.button {
 		display: inline-block;
 		padding: 10px 20px;
@@ -110,6 +143,6 @@
 		gap: 1rem;
 	}
 	.wiki-docs {
-        margin-bottom: 2rem;
-    }
+		margin-bottom: 2rem;
+	}
 </style>

@@ -1,40 +1,56 @@
 <!-- src/lib/components/SimulationView.svelte -->
 <script lang="ts">
-    import { onMount } from "svelte";
-    import { createScene } from "$lib/scenes/scene";
+	/**
+	 * The main component that displays the 3D electromagnetism simulation.
+	 * It uses Three.js for rendering and handles the communication
+	 * between the Svelte UI and the 3D scene logic.
+	 *
+	 * @component
+	 *
+	 * @prop {number} current - The value of the current (in Amperes) to apply to the simulation.
+	 */
+	import { onMount } from 'svelte';
+	import { createScene } from '$lib/scenes/scene';
 
-    // Accept current as a prop
-    export let current: number; 
+	/**
+	 * The current (in Amperes) applied to the simulation.
+	 * Changes to this prop trigger updates in the 3D scene.
+	 */
+	export let current: number;
 
-    let canvas: HTMLCanvasElement;
+	// A reference to the HTML canvas element where Three.js will render the scene.
+	let canvas: HTMLCanvasElement;
 
-    // Save the function 'update' to return the scene.
-    let sceneUpdater: (newState: { current: number }) => void;
+	// Function to update the scene's state (e.g., the value of the current).
+	let sceneUpdater: (newState: { current: number }) => void;
 
-    // Cleaning function 
-    let sceneDestroyer: () => void;
+	// Function to clean up resources and event listeners when the component is destroyed.
+	let sceneDestroyer: () => void;
 
-    onMount(() => {
-        if (canvas) {
-            // Capture the function 'update' and 'destroyer' to create the scene 
-            const { update, destroy } = createScene(canvas);
-            sceneUpdater = update;
-            sceneDestroyer = destroy; 
+	// --- Lifecycle: onMount ---
+	onMount(() => {
+		if (canvas) {
+			// Initialize the Three.js scene by passing in the canvas element.
+			// The createScene function returns two functions: 'update' and 'destroy'.
+			const { update, destroy } = createScene(canvas);
+			sceneUpdater = update;
+			sceneDestroyer = destroy;
+		}
+		// This return function runs when the component is unmounted.
+		return () => {
+			// Call the 'destroy' function to clean up resources and event listeners.
+			if (sceneDestroyer) {
+				sceneDestroyer();
+			}
+		};
+	});
 
-        } 
-        return () => {
-            // Cleanup logic if the component is destroyed
-            if (sceneDestroyer) {
-                sceneDestroyer(); 
-            }
-        }
-    });
-
-    // The magic of Svelte! This is a "reactive statement."
-    // Every time the 'current' property changes, this block of code will execute.
-    $: if (sceneUpdater) {
-        sceneUpdater({ current });
-    }
+	// --- Reactive Statement: Update the scene when the 'current' prop changes ---
+	$: if (sceneUpdater) {
+		// The 'sceneUpdater' function is called whenever the 'current' prop changes.
+		// This is how we pass new values (like the current) into the Three.js scene.
+		sceneUpdater({ current });
+	}
 </script>
 
 <div class="simulation-container">
@@ -48,11 +64,11 @@
 		left: 0;
 		width: 100%;
 		height: 100%;
-		z-index: 1; /* Layout inferior */
+		z-index: 1; /* Place behind the controls panel */
 	}
 	canvas {
 		width: 100%;
 		height: 100%;
-		display: block;
+		display: block; /* Removes extra spacing under the canvas. */
 	}
 </style>

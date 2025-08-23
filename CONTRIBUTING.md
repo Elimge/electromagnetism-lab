@@ -5,6 +5,7 @@ First of all, thank you for considering contributing to this project! We are exc
 This document provides a set of guidelines to help you contribute effectively.
 
 ## 📖 Table of Contents
+
 - [Ways to Contribute](#ways-to-contribute)
 - [Reporting Bugs](#reporting-bugs)
 - [Suggesting Enhancements](#suggesting-enhancements)
@@ -16,6 +17,7 @@ This document provides a set of guidelines to help you contribute effectively.
 ## Ways to Contribute
 
 There are many ways you can help improve this project:
+
 - **Reporting bugs:** If you find something that isn't working as expected.
 - **Suggesting enhancements:** If you have an idea for a new feature or an improvement to an existing one.
 - **Improving documentation:** If you find parts of the documentation that are unclear or could be improved.
@@ -26,6 +28,7 @@ There are many ways you can help improve this project:
 Before creating a bug report, please check the existing [Issues](https://github.com/Elimge/electromagnetism-lab/issues) to see if someone has already reported it.
 
 When creating a bug report, please include as many details as possible:
+
 - A clear and descriptive title.
 - A step-by-step description of how to reproduce the bug.
 - The expected behavior and what actually happened.
@@ -68,31 +71,32 @@ Ready to write some code? Here’s how to get your local environment set up.
 
 Here is a brief overview of the project structure to help you find your way around:
 
--   `src/lib/scenes/scene.ts`: The heart of the application. All Three.js logic, including object creation, rendering, and interaction, lives here.
--   `src/lib/physics/biotSavart.ts`: Contains the core physics formulas used to calculate the magnetic fields.
--   `src/lib/components/`: Contains all the Svelte components that make up the UI.
-    -   `shared/`: Reusable components like sliders, buttons, and the header.
-    -   Other files are the main UI panels.
--   `src/lib/stores/`: Svelte stores for managing global state, such as the active theme and the current simulation.
--   `src/routes/`: Defines the pages of the application, following the SvelteKit routing conventions.
+- `src/lib/scenes/scene.ts`: The heart of the application. All Three.js logic, including object creation, rendering, and interaction, lives here.
+- `src/lib/physics/biotSavart.ts`: Contains the core physics formulas used to calculate the magnetic fields.
+- `src/lib/components/`: Contains all the Svelte components that make up the UI.
+  - `shared/`: Reusable components like sliders, buttons, and the header.
+  - Other files are the main UI panels.
+- `src/lib/stores/`: Svelte stores for managing global state, such as the active theme and the current simulation.
+- `src/routes/`: Defines the pages of the application, following the SvelteKit routing conventions.
 
 ## Code Style Guide
 
 This project uses **Prettier** for code formatting and **ESLint** for linting to maintain a consistent code style.
 
--   Before committing your changes, please run the formatter:
-    ```bash
-    npm run format
-    ```
--   You can also check for any linting errors with:
-    ```bash
-    npm run lint
-    ```
+- Before committing your changes, please run the formatter:
+  ```bash
+  npm run format
+  ```
+- You can also check for any linting errors with:
+  ```bash
+  npm run lint
+  ```
+
 ## 💬 Communication Channels
 
--   For **bug reports and feature requests**, please use the [GitHub Issues](https://github.com/Elimge/electromagnetism-lab/issues).
--   For **general questions and discussions**, please use the [GitHub Discussions](https://github.com/Elimge/electromagnetism-lab/discussions) tab.
--   For **private or sensitive matters**, you can contact the project maintainer, Elimge, through the email listed on his [GitHub profile](https://github.com/Elimge).
+- For **bug reports and feature requests**, please use the [GitHub Issues](https://github.com/Elimge/electromagnetism-lab/issues).
+- For **general questions and discussions**, please use the [GitHub Discussions](https://github.com/Elimge/electromagnetism-lab/discussions) tab.
+- For **private or sensitive matters**, you can contact the project maintainer, Elimge, through the email listed on his [GitHub profile](https://github.com/Elimge).
 
 ## Submitting a Pull Request
 
