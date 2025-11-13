@@ -1,0 +1,43 @@
+# .github/workflows/playwright.yml
+
+# Name of the workflow
+name: Run Tests
+
+# Trigger: When to run this workflow
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+# Jobs: The sequence of tasks to perform
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run Unit Tests (Vitest)
+      run: npm test
+    
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    
+    - name: Run E2E Tests (Playwright)
+      run: npx playwright test
+
+    - name: Upload Playwright Report
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30

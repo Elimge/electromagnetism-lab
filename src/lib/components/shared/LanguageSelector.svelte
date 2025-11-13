@@ -15,8 +15,9 @@
     Clicking a button writes the new language code ('es' or 'en') directly back into the store,
     triggering a reactive update across the entire application.
     -->
-	<button class:active={$locale === 'es'} on:click={() => ($locale = 'es')}>ES</button>
-	<button class:active={$locale === 'en'} on:click={() => ($locale = 'en')}>EN</button>
+	<button class:active={$locale?.startsWith('es')} on:click={() => ($locale = 'es')}>ES</button>
+	<button class:active={$locale?.startsWith('en')} on:click={() => ($locale = 'en')}>EN</button>
+	<button class:active={$locale?.startsWith('pt')} on:click={() => ($locale = 'pt')}>PT</button>
 </div>
 
 <style>

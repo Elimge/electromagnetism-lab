@@ -18,6 +18,7 @@ import { register, init, getLocaleFromNavigator } from 'svelte-i18n';
  */
 register('en', () => import('../locales/en.json'));
 register('es', () => import('../locales/es.json'));
+register('pt', () => import('../locales/pt.json'));
 
 /**
  * Initializes the i18n service with a configuration object.

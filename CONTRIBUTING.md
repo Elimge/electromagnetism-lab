@@ -94,7 +94,6 @@ This project uses **Prettier** for code formatting and **ESLint** for linting to
 
 ## 💬 Communication Channels
 
-- For **bug reports and feature requests**, please use the [GitHub Issues](https://github.com/Elimge/electromagnetism-lab/issues).
 - For **general questions and discussions**, please use the [GitHub Discussions](https://github.com/Elimge/electromagnetism-lab/discussions) tab.
 - For **private or sensitive matters**, you can contact the project maintainer, Elimge, through the email listed on his [GitHub profile](https://github.com/Elimge).
 
