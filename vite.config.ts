@@ -6,6 +6,6 @@ export default defineConfig({
 	plugins: [sveltekit()],
 	test: {
 		environment: 'jsdom',
-		exclude: ['tests/**']
+		include: ['src/**/*.{test,spec}.ts']
 	}
 });
