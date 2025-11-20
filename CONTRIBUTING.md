@@ -11,6 +11,7 @@ This document provides a set of guidelines to help you contribute effectively.
 - [Suggesting Enhancements](#suggesting-enhancements)
 - [Setting Up Your Development Environment](#setting-up-your-development-environment)
 - [Project Structure](#project-structure)
+- [Testing](#testing)
 - [Code Style Guide](#code-style-guide)
 - [Submitting a Pull Request](#submitting-a-pull-request)
 
@@ -78,6 +79,20 @@ Here is a brief overview of the project structure to help you find your way arou
   - Other files are the main UI panels.
 - `src/lib/stores/`: Svelte stores for managing global state, such as the active theme and the current simulation.
 - `src/routes/`: Defines the pages of the application, following the SvelteKit routing conventions.
+- `tests/`: Contains unit tests (using Vitest) and end-to-end tests (using Playwright) to ensure code quality.
+
+## Testing
+
+This project uses a combination of unit and end-to-end tests to ensure quality. Before submitting any code, please ensure all tests are passing.
+
+-   **Run Unit Tests** with Vitest:
+    ```bash
+    npm test
+    ```
+-   **Run End-to-End Tests** with Playwright:
+    ```bash
+    npx playwright test
+    ```
 
 ## Code Style Guide
 
@@ -91,12 +106,6 @@ This project uses **Prettier** for code formatting and **ESLint** for linting to
   ```bash
   npm run lint
   ```
-
-## 💬 Communication Channels
-
-- For **general questions and discussions**, please use the [GitHub Discussions](https://github.com/Elimge/electromagnetism-lab/discussions) tab.
-- For **private or sensitive matters**, you can contact the project maintainer, Elimge, through the email listed on his [GitHub profile](https://github.com/Elimge).
-
 ## Submitting a Pull Request
 
 1.  Commit your changes with a clear and descriptive commit message.
@@ -105,6 +114,12 @@ This project uses **Prettier** for code formatting and **ESLint** for linting to
     git push origin your-branch-name
     ```
 3.  Open a **Pull Request** from your fork to the `develop` branch of the original repository.
-4.  In the Pull Request description, please explain the changes you've made and link to any relevant Issues.
+4.  **Important:** Your Pull Request will automatically trigger our CI pipeline (GitHub Actions). **All checks and tests must pass** for your PR to be considered for merging.
+5.  In the Pull Request description, please explain the changes you've made and link to any relevant Issues.
+
+## 💬 Communication Channels
+
+- For **general questions and discussions**, please use the [GitHub Discussions](https://github.com/Elimge/electromagnetism-lab/discussions) tab.
+- For **private or sensitive matters**, you can contact the project maintainer, Elimge, through the email listed on his [GitHub profile](https://github.com/Elimge).
 
 Thank you again for your contribution!
