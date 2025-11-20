@@ -21,11 +21,16 @@ An interactive web application designed to help students and educators visualize
 ![Three.js](https://img.shields.io/badge/Three.js-000000?style=for-the-badge&logo=three.js&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Vitest](https://img.shields.io/badge/Vitest-6E9F18?style=for-the-badge&logo=vitest&logoColor=white)
+![Playwright](https://img.shields.io/badge/Playwright-2EAD33?style=for-the-badge&logo=playwright&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)
 
 - **[SvelteKit](https://kit.svelte.dev/):** The web framework for building a fast and robust application.
 - **[Three.js](https://threejs.org/):** For rendering and interacting with the 3D scenes.
 - **[TypeScript](https://www.typescriptlang.org/):** For strong typing and more maintainable code.
 - **[svelte-i18n](https://github.com/cibernox/svelte-i18n):** For internationalization.
+- **[Vitest](https://vitest.dev/):** For unit and integration testing.
+- **[Playwright](https://playwright.dev/):** For end-to-end testing.
 
 ## 📁 Project Structure
 
@@ -33,6 +38,7 @@ A brief overview of the key directories and files in this project:
 
 ``` bash
 electromagnetism-lab/
+├── .github/workflows/ # Contains the CI/CD workflow for automated testing and deployment.
 ├── /src
 │ ├── /lib
 │ │ ├── /components
@@ -46,6 +52,8 @@ electromagnetism-lab/
 │ ├── /routes # Defines the pages of the application, following SvelteKit's file-based routing conventions.
 │ └── app.html # Main HTML template for all pages.
 ├── /static # Contains static assets like the favicon and robots.txt that are copied directly to the output directory.
+├── /tests # Contains all the end-to-end tests written with Playwright.
+├── package.json # Project dependencies and scripts.
 └── svelte.config.js # SvelteKit configuration file, including static adapter settings for GitHub Pages.
 ```
 
@@ -77,6 +85,9 @@ To run this project locally, follow these steps:
     npm run dev
     ```
     The application will be available at `http://localhost:5173`.
+5.  **Run tests:**
+    - Unit Tests: `npm test`
+    - End-to-End Tests: `npx playwright test`
 
 ## 🤝 Contributing
 
